@@ -11,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Kupac")
+@DiscriminatorValue("Kupac")
 public class Kupac extends Korisnik implements Serializable {
 
     // porudzbina

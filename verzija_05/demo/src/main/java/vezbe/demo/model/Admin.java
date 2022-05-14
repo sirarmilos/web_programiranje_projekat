@@ -1,5 +1,6 @@
 package vezbe.demo.model;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -7,6 +8,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "Admin")
+@DiscriminatorValue("Admin")
 public class Admin extends Korisnik implements Serializable {
 
     public Admin() {

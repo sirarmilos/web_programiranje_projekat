@@ -16,10 +16,12 @@ public class PorudzbinaArtikal implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "artikal_id")
+    @JsonIgnore
     private Artikal artikal;
 
     @ManyToOne
     @JoinColumn(name = "porudzbina_id")
+    @JsonIgnore
     private Porudzbina porudzbina;
 
     private int kolicina;
