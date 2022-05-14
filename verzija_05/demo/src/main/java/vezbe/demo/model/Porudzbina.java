@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -19,13 +21,19 @@ public class Porudzbina implements Serializable {
 
     // porudzbina - porudzbinaArtikal - artikal
 
-    @OneToMany(mappedBy = "porudzbina")
+    @OneToMany(mappedBy = "porudzbina", cascade = CascadeType.ALL)
     private Set<PorudzbinaArtikal> porudzbineArtikli = new HashSet<>();
 
+/*
+    @OneToMany(mappedBy = "porudzbina")
+    @JsonIgnore
+    private Set<PorudzbinaArtikal> porudzbineArtikli = new HashSet<>();
+*/
     // restoran
 
     @ManyToOne
     @JoinColumn(name = "restoran_id", nullable = false)
+    @JsonIgnore
     private Restoran restoran;
 
     @Column(name = "datum_vreme", nullable = false)
@@ -38,6 +46,7 @@ public class Porudzbina implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "kupac_korisnickoIme")
+    @JsonIgnore
     private Kupac kupac;
 
     @Column(name = "status", nullable = false)
@@ -48,6 +57,7 @@ public class Porudzbina implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "dostavljac_korisnickoIme")
+    @JsonIgnore
     private Dostavljac dostavljac;
 
     public Porudzbina() {

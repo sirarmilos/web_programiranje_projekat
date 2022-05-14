@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -15,6 +17,7 @@ public class Menadzer extends Korisnik implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "restoran_id", nullable = false)
+    @JsonIgnore
     private Restoran restoran;
 
     public Menadzer() {

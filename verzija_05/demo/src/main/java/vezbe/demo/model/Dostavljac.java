@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -13,6 +15,7 @@ public class Dostavljac extends Korisnik implements Serializable {
     // porudzbina
 
     @OneToMany(mappedBy = "dostavljac", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Porudzbina> porudzbine = new HashSet<>();
 
     public Dostavljac() {

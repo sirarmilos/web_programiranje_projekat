@@ -137,7 +137,7 @@ public class DatabaseConfiguration {
         LocalDateTime datumIVremePorudzbine3 = LocalDateTime.of(2022, 12, 21, 13, 44, 22);
         LocalDateTime datumIVremePorudzbine4 = LocalDateTime.of(2022, 12, 16, 23, 50, 15);
 
-        BigDecimal c1 = new BigDecimal(0);
+       /* BigDecimal c1 = new BigDecimal(0);
         c1.add(artikal1.getCena());
         c1.add(artikal2.getCena());
 
@@ -152,19 +152,34 @@ public class DatabaseConfiguration {
 
         BigDecimal c4 = new BigDecimal(0);
         c4.add(artikal7.getCena());
-        c4.add(artikal8.getCena());
+        c4.add(artikal8.getCena());*/
+
+        BigDecimal c1 = new BigDecimal(0);
+        c1.add(artikal1.getCena());
+        c1.add(artikal1.getCena());
+        c1.add(artikal1.getCena());
 
         Porudzbina porudzbina1 = new Porudzbina(restoran1, datumIVremePorudzbine1, c1, kupac1, Porudzbina.Status.UPripremi, dostavljac1);
 
-        Porudzbina porudzbina2 = new Porudzbina(restoran1, datumIVremePorudzbine2, c2, kupac4, Porudzbina.Status.UPripremi, dostavljac3);
+       /* Porudzbina porudzbina2 = new Porudzbina(restoran1, datumIVremePorudzbine2, c2, kupac4, Porudzbina.Status.UPripremi, dostavljac3);
 
         Porudzbina porudzbina3 = new Porudzbina(restoran4, datumIVremePorudzbine3, c3, kupac5, Porudzbina.Status.UPripremi, dostavljac1);
 
         Porudzbina porudzbina4 = new Porudzbina(restoran2, datumIVremePorudzbine4, c4, kupac2, Porudzbina.Status.UPripremi, dostavljac2);
 
         porudzbinaRepository.saveAll(Set.of(porudzbina1, porudzbina2, porudzbina3, porudzbina4));
+*/
 
-        PorudzbinaArtikal pa1 = new PorudzbinaArtikal(porudzbina1.getId(), artikal1.getId(), porudzbina1, artikal1);
+        porudzbinaRepository.save(porudzbina1);
+
+        PorudzbinaArtikal pa1 = new PorudzbinaArtikal(artikal1, porudzbina1, 3);
+        /*PorudzbinaArtikal pa2 = new PorudzbinaArtikal(artikal2, porudzbina1, 3);
+        PorudzbinaArtikal pa3 = new PorudzbinaArtikal(artikal1, porudzbina1, 3);
+        PorudzbinaArtikal pa4 = new PorudzbinaArtikal(artikal1, porudzbina1, 3);*/
+
+        porudzbinaArtikalRepository.save(pa1);
+
+       /* PorudzbinaArtikal pa1 = new PorudzbinaArtikal(porudzbina1.getId(), artikal1.getId(), porudzbina1, artikal1);
         PorudzbinaArtikal pa2 = new PorudzbinaArtikal(porudzbina1.getId(), artikal2.getId(), porudzbina1, artikal2);
         PorudzbinaArtikal pa3 = new PorudzbinaArtikal(porudzbina2.getId(), artikal2.getId(), porudzbina2, artikal2);
         PorudzbinaArtikal pa4 = new PorudzbinaArtikal(porudzbina2.getId(), artikal2.getId(), porudzbina2, artikal2);
@@ -175,7 +190,7 @@ public class DatabaseConfiguration {
         PorudzbinaArtikal pa9 = new PorudzbinaArtikal(porudzbina4.getId(), artikal8.getId(), porudzbina4, artikal8);
 
         porudzbinaArtikalRepository.saveAll(Set.of(pa1, pa2, pa3, pa4, pa5, pa6, pa7, pa8, pa9));
-
+*/
         Komentar komentar1 = new Komentar(kupac1, restoran1, "vrlo lep restoran", Komentar.Ocena.VeomaDobro);
         Komentar komentar2 = new Komentar(kupac4, restoran1, "vrlo lose...", Komentar.Ocena.Lose);
 

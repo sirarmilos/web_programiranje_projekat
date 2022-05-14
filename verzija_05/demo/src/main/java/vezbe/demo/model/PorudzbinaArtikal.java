@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.UUID;
@@ -9,6 +11,61 @@ import java.util.UUID;
 public class PorudzbinaArtikal implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @ManyToOne
+    @JoinColumn(name = "artikal_id")
+    private Artikal artikal;
+
+    @ManyToOne
+    @JoinColumn(name = "porudzbina_id")
+    private Porudzbina porudzbina;
+
+    private int kolicina;
+
+    public PorudzbinaArtikal() {
+    }
+
+    public PorudzbinaArtikal(Artikal artikal, Porudzbina porudzbina, int kolicina) {
+        this.artikal = artikal;
+        this.porudzbina = porudzbina;
+        this.kolicina = kolicina;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Artikal getArtikal() {
+        return artikal;
+    }
+
+    public void setArtikal(Artikal artikal) {
+        this.artikal = artikal;
+    }
+
+    public Porudzbina getPorudzbina() {
+        return porudzbina;
+    }
+
+    public void setPorudzbina(Porudzbina porudzbina) {
+        this.porudzbina = porudzbina;
+    }
+
+    public int getKolicina() {
+        return kolicina;
+    }
+
+    public void setKolicina(int kolicina) {
+        this.kolicina = kolicina;
+    }
+
+    /*@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -20,10 +77,12 @@ public class PorudzbinaArtikal implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "p_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Porudzbina porudzbina;
 
     @ManyToOne
     @JoinColumn(name = "a_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Artikal artikal;
 
     public PorudzbinaArtikal() {
@@ -85,5 +144,5 @@ public class PorudzbinaArtikal implements Serializable {
                 ", porudzbina=" + porudzbina +
                 ", artikal=" + artikal +
                 '}';
-    }
+    }*/
 }
