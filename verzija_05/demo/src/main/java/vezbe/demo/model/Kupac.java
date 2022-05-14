@@ -16,7 +16,7 @@ public class Kupac extends Korisnik implements Serializable {
     @OneToMany(mappedBy = "kupac", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Porudzbina> porudzbine = new HashSet<>();
 
-    @Column(name = "broj_sakupljenih_bodova", nullable = false)
+    @Column(name = "broj_sakupljenih_bodova")
     private BigDecimal brojSakupljenihBodova;
 
     // tipKupca
@@ -37,6 +37,10 @@ public class Kupac extends Korisnik implements Serializable {
         super(korisnickoIme, lozinka, ime, prezime, pol, datumRodjenja);
         this.brojSakupljenihBodova = new BigDecimal(0);
         this.tipKupca = tipKupca;
+    }
+
+    public Kupac(String korisnickoIme, String lozinka, String ime, String prezime) {
+        super(korisnickoIme, lozinka, ime, prezime);
     }
 
     public Set<Porudzbina> getPorudzbine() {
