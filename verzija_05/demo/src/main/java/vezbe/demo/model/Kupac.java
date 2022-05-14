@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Kupac")
+@DiscriminatorValue("Kupac")
 public class Kupac extends Korisnik implements Serializable {
 
     // porudzbina
@@ -23,11 +26,13 @@ public class Kupac extends Korisnik implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "tipKupca_id")
+    @JsonIgnore
     private TipKupca tipKupca;
 
     // komentari
 
     @OneToMany(mappedBy = "kupac", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Komentar> komentari = new HashSet<>();
 
     public Kupac() {

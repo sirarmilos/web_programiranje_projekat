@@ -1,0 +1,35 @@
+package vezbe.demo.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import vezbe.demo.model.Porudzbina;
+import vezbe.demo.model.Restoran;
+import vezbe.demo.repository.MenadzerRepository;
+import vezbe.demo.repository.RestoranRepository;
+
+import java.util.List;
+
+@Service
+public class MenadzerService {
+
+    @Autowired
+    private MenadzerRepository menadzerRepository;
+
+    @Autowired
+    private RestoranRepository restoranRepository;
+
+    public Restoran NadjiRestoranGdeMenadzerRadi(String korisnickoIme)
+    {
+        System.out.println("aaaaaaaaaaa");
+        Restoran restoran = menadzerRepository.findByKorisnickoIme(korisnickoIme);
+        return restoran;
+    }
+
+    public List<Porudzbina> PregledPodatakaOdStraneMenadzera(Restoran restoran)
+    {
+        List<Porudzbina> porudzbine = restoranRepository.findAllPorudzbinaById(restoran);
+
+        return porudzbine;
+    }
+
+}

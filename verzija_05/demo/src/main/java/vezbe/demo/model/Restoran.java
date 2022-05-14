@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -22,26 +24,31 @@ public class Restoran implements Serializable {
     // lokacija
 
     @OneToOne
+    @JsonIgnore
     private Lokacija lokacija;
 
     // artikal
 
     @OneToMany(mappedBy = "restoran", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Artikal> artikli = new HashSet<>();
 
     // porudzbina
 
     @OneToMany(mappedBy = "restoran", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Porudzbina> porudzbine = new HashSet<>();
 
     // menadzeri
 
     @OneToMany(mappedBy = "restoran", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Menadzer> menadzeri = new HashSet<>();
 
     // komentar
 
     @OneToMany(mappedBy = "restoran", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Komentar> komentari = new HashSet<>();
 
     public Restoran() {

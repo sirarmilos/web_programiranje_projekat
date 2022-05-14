@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -29,6 +31,7 @@ public class TipKupca implements Serializable {
     // kupac
 
     @OneToMany(mappedBy = "tipKupca", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Kupac> kupci = new HashSet<>();
 
     public TipKupca() {

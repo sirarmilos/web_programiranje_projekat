@@ -7,6 +7,7 @@ import java.time.LocalDate;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "Korisnik")
+@DiscriminatorValue("Korisnik")
 public abstract class Korisnik implements Serializable{
 
     @Id
