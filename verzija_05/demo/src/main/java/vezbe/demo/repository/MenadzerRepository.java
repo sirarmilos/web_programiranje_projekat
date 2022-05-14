@@ -8,6 +8,5 @@ import vezbe.demo.model.Restoran;
 @Repository
 public interface MenadzerRepository extends JpaRepository<Menadzer, String> {
 
-    public Restoran findByKorisnickoIme(String korisnickoIme);
-
+    Menadzer findByKorisnickoIme(String korisnickoIme);
 }

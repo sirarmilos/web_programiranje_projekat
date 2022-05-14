@@ -127,8 +127,8 @@ public class DatabaseConfiguration {
         restoranRepository.save(restoran5);
 
         Menadzer menadzer1 = new Menadzer("vesnavesna", "lozinkaMenadzer1", "Vesna", "Bozovic", "zenski", datumRodjenja11 , restoran1);
-        Menadzer menadzer2 = new Menadzer("ema777", "lozinkaMenadzer2", "Ema", "Sofranovic", "zenski", datumRodjenja12 , restoran1);
-        Menadzer menadzer3 = new Menadzer("bogdanteslic", "lozinkaMenadzer3", "Bogdan", "Teslic", "muski", datumRodjenja13 , restoran2);
+        Menadzer menadzer2 = new Menadzer("ema777", "lozinkaMenadzer2", "Ema", "Sofranovic", "zenski", datumRodjenja12 , restoran2); // restoran1
+        Menadzer menadzer3 = new Menadzer("bogdanteslic", "lozinkaMenadzer3", "Bogdan", "Teslic", "muski", datumRodjenja13 , restoran3); // restoran2
 
         menadzerRepository.save(menadzer1);
         menadzerRepository.save(menadzer2);
