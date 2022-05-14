@@ -21,10 +21,10 @@ public abstract class Korisnik implements Serializable{
     @Column(name = "Prezime", nullable = false)
     private String prezime;
 
-    @Column(name = "Pol", nullable = false)
+    @Column(name = "Pol")
     private String pol;
 
-    @Column(name = "Datum_rodjenja", nullable = false)
+    @Column(name = "Datum_rodjenja")
     private LocalDate datumRodjenja;
 
     public Korisnik() {
@@ -37,6 +37,13 @@ public abstract class Korisnik implements Serializable{
         this.prezime = prezime;
         this.pol = pol;
         this.datumRodjenja = datumRodjenja;
+    }
+
+    public Korisnik(String korisnickoIme, String lozinka, String ime, String prezime) {
+        this.korisnickoIme = korisnickoIme;
+        this.lozinka = lozinka;
+        this.ime = ime;
+        this.prezime = prezime;
     }
 
     public String getKorisnickoIme() {
