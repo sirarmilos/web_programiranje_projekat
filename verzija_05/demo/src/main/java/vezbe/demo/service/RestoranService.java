@@ -30,4 +30,9 @@ public class RestoranService {
         return listaPorudzbina;
     }
 
+    public List<Restoran> PregledSvihRestorana()
+    {
+        return restoranRepository.findAll();
+    }
+
 }
