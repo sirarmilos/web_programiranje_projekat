@@ -21,7 +21,7 @@ public class Porudzbina implements Serializable {
 
     // porudzbina - porudzbinaArtikal - artikal
 
-    @OneToMany(mappedBy = "porudzbina", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "porudzbina", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PorudzbinaArtikal> porudzbineArtikli = new HashSet<>();
 
 /*

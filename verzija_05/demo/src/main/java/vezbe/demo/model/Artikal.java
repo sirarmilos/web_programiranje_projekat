@@ -45,7 +45,7 @@ public class Artikal implements Serializable {
 
     // artikal - porudzbinaArtikal - porudzbina
 
-    @OneToMany(mappedBy = "artikal")
+    @OneToMany(mappedBy = "artikal", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<PorudzbinaArtikal> porudzbineArtikli = new HashSet<>();
 

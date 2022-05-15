@@ -1,25 +1,34 @@
 package vezbe.demo.dto;
 
-import vezbe.demo.model.Artikal;
-import vezbe.demo.model.Restoran;
-
 import java.math.BigDecimal;
 
-public class DodavanjeNovogArtiklaDto {
+public class AzuriranjeArtiklaDto {
 
+    private Long id;
     private String naziv;
     private BigDecimal cena;
     private String tip;
-    private String opis;
     private String kolicina;
+    private String opis;
 
-    public DodavanjeNovogArtiklaDto() {
+    public AzuriranjeArtiklaDto() {
     }
 
-    public DodavanjeNovogArtiklaDto(String naziv, BigDecimal cena, String tip) {
+    public AzuriranjeArtiklaDto(Long id, String naziv, BigDecimal cena, String tip, String kolicina, String opis) {
+        this.id = id;
         this.naziv = naziv;
         this.cena = cena;
         this.tip = tip;
+        this.kolicina = kolicina;
+        this.opis = opis;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNaziv() {
@@ -46,6 +55,10 @@ public class DodavanjeNovogArtiklaDto {
         this.tip = tip;
     }
 
+    public String getKolicina() {
+        return kolicina;
+    }
+
     public void setKolicina(String kolicina) {
         this.kolicina = kolicina;
     }
@@ -56,10 +69,5 @@ public class DodavanjeNovogArtiklaDto {
 
     public void setOpis(String opis) {
         this.opis = opis;
-    }
-
-    public Artikal PrebaciUArtikal(DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto, Restoran restoran)
-    {
-        return new Artikal(dodavanjeNovogArtiklaDto.naziv, dodavanjeNovogArtiklaDto.cena, dodavanjeNovogArtiklaDto.tip, dodavanjeNovogArtiklaDto.kolicina, dodavanjeNovogArtiklaDto.opis, restoran);
     }
 }
