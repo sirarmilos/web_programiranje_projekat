@@ -204,7 +204,9 @@ public class DatabaseConfiguration {
 
         Porudzbina porudzbina3 = new Porudzbina(restoran4, datumIVremePorudzbine3, c3, kupac5, Porudzbina.Status.UPripremi, dostavljac1);
 
-        Porudzbina porudzbina4 = new Porudzbina(restoran2, datumIVremePorudzbine4, c4, kupac2, Porudzbina.Status.UPripremi, dostavljac2);
+        Porudzbina porudzbina4 = new Porudzbina(restoran2, datumIVremePorudzbine4, c4, kupac2, Porudzbina.Status.CekaDostavljaca, dostavljac2);
+
+
 
         porudzbinaRepository.save(porudzbina1);
         porudzbinaRepository.save(porudzbina2);
