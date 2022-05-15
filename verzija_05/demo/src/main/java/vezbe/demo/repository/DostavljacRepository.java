@@ -7,4 +7,5 @@ import vezbe.demo.model.Dostavljac;
 @Repository
 public interface DostavljacRepository extends JpaRepository<Dostavljac, String> {
 
+    Dostavljac findDostavljacByKorisnickoIme(String korisnickoIme);
 }

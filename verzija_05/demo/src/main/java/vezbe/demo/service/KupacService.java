@@ -34,4 +34,8 @@ public class KupacService {
         return kupac;
     }*/
 
+    public Kupac findByKorisnickoIme(String korisnickoIme){
+        return kupacRepository.findKupacByKorisnickoIme(korisnickoIme);
+    }
+
 }
