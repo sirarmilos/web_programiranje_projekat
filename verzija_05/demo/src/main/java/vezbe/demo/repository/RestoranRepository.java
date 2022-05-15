@@ -7,6 +7,7 @@ import vezbe.demo.model.Porudzbina;
 import vezbe.demo.model.Restoran;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RestoranRepository extends JpaRepository<Restoran, Long> {
@@ -14,4 +15,5 @@ public interface RestoranRepository extends JpaRepository<Restoran, Long> {
     List<Restoran> findAllByNazivStartingWithAndTipStartingWith/*AndLokacijaContains*/(String naziv, String tip);//, Lokacija lokacija);
     List<Restoran> findAllByNazivEqualsAndTipEquals/*AndLokacijaContains*/(String naziv, String tip);//, Lokacija lokacija);
     List<Restoran> findByTipLike/*AndLokacijaContains*/(String tip);
+    Optional<Restoran> findById(Long id);
 }

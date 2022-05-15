@@ -8,10 +8,7 @@ import vezbe.demo.model.Restoran;
 import vezbe.demo.repository.PorudzbinaRepository;
 import vezbe.demo.repository.RestoranRepository;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class RestoranService {
@@ -49,6 +46,18 @@ public class RestoranService {
         }
 
         return  restorani;
+    }
+
+    public Restoran NadjiRestoranPoId(Long id)
+    {
+        Optional<Restoran> restoran = restoranRepository.findById(id);
+
+        if(restoran.isPresent())
+        {
+            return restoran.get();
+        }
+
+        return null;
     }
 
 }
