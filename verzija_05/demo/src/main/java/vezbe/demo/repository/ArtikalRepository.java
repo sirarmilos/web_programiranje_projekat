@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface ArtikalRepository extends JpaRepository<Artikal, Long> {
 
     List<Artikal> findByRestoran(Restoran restoran);
-    Optional<Artikal> findById(Long id);
+    Optional<Artikal> findById(Long id);        /// VAZNA NAPOMENA: PROBAJ findArtikalById da ne bi imao ovaj Optional i to svuda primeni ako radi, bolje je...
+    Artikal findAllById(Long id);
+    Artikal findArtikalById(Long id);
     void delete(Artikal artikal);
 }

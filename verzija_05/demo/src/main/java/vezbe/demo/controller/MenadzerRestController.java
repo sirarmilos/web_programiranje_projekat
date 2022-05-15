@@ -4,13 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vezbe.demo.dto.AzuriranjeArtiklaDto;
 import vezbe.demo.dto.DodavanjeNovogArtiklaDto;
-import vezbe.demo.dto.ObrisiArtikalDto;
-import vezbe.demo.dto.RegistracijaDto;
-import vezbe.demo.model.Artikal;
-import vezbe.demo.model.Korisnik;
-import vezbe.demo.model.Porudzbina;
-import vezbe.demo.model.Restoran;
+import vezbe.demo.model.*;
 import vezbe.demo.service.ArtikalService;
 import vezbe.demo.service.MenadzerService;
 import vezbe.demo.service.RestoranService;
@@ -98,27 +94,66 @@ public class MenadzerRestController {
         return new ResponseEntity("Menadzer je dodao novi artikal u restoran za koji je zaduzen", HttpStatus.OK);
     }
 
-    @PostMapping("api/menadzer/obrisi_artikal") // sa @PathVariable kad proradi, ne znam zasto nece
-    public ResponseEntity ObrisiArtikal(@RequestBody ObrisiArtikalDto obrisiArtikalDto, HttpSession sesija)
-    {
+    @DeleteMapping("api/menadzer/obrisi_artikal/{id}") // sa @PathVariable kad proradi, ne znam zasto nece
+    public ResponseEntity ObrisiArtikal(@ModelAttribute Artikal artikal, HttpSession sesija) {
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
 
-        if(povratna == false)
-        {
+        if (povratna == false) {
             return new ResponseEntity("Ne mozete da obrisete artikal, niste menadzer.", HttpStatus.BAD_REQUEST);
         }
 
-        Long id = obrisiArtikalDto.PrebaciULong(obrisiArtikalDto);
-        Boolean povratnaVrednost = false;
+        Artikal artikalTrazeni = artikalService.NadjiArtikal(artikal.getId());
 
-        povratnaVrednost = artikalService.ObrisiArtikal(id);
-
-        if(povratnaVrednost == false)
+        if(artikalTrazeni == null)
         {
             return new ResponseEntity("Ne mozete da obrisete artikal koji ne postoji.", HttpStatus.BAD_REQUEST);
         }
 
+        String korisnickoIme = sesijaService.getKorisnickoIme(sesija);
+        Restoran restoran = menadzerService.NadjiRestoranGdeMenadzerRadi(korisnickoIme);
+
+        if(artikalTrazeni.getRestoran() == null)
+        {
+            return new ResponseEntity("Ne mozete da obrisete artikal koji ne postoji.", HttpStatus.BAD_REQUEST);
+        }
+
+        if(restoran.getId() == artikalTrazeni.getRestoran().getId()) {
+            this.artikalService.ObrisiArtikal(artikal);
+        }
+        else
+        {
+            return new ResponseEntity("Ne mozete da obrisete artikal koji nije u restoranu od ovog menadzera.", HttpStatus.BAD_REQUEST);
+        }
+
+
         return new ResponseEntity("Artikal je uspesno obrisan", HttpStatus.OK);
+    }
+
+    @PutMapping("api/menadzer/azuriranje_artikla")
+    public ResponseEntity AzurirajArtikal(@RequestBody AzuriranjeArtiklaDto azuriranjeArtiklaDto, HttpSession sesija)
+    {
+        HashMap<String, String> podaciGreske = ValidacijaAzuriranja(azuriranjeArtiklaDto);
+
+        Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
+
+        if (povratna == false) {
+            return new ResponseEntity("Ne mozete da azurirati artikal, niste menadzer.", HttpStatus.BAD_REQUEST);
+        }
+
+        String korisnickoIme = sesijaService.getKorisnickoIme(sesija);
+        Restoran restoran = menadzerService.NadjiRestoranGdeMenadzerRadi(korisnickoIme);
+
+        if(restoran.getId().equals(azuriranjeArtiklaDto.getId()) == false)
+        {
+            return new ResponseEntity("Ne mozete da azurirate artikal koji nije u restoranu od ovog menadzera.", HttpStatus.BAD_REQUEST);
+        }
+
+        if(podaciGreske.isEmpty() == false)
+        {
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(artikalService.AzurirajArtikal(azuriranjeArtiklaDto), HttpStatus.OK);
     }
 
     private HashMap<String, String> Validacija(DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto)
@@ -138,6 +173,43 @@ public class MenadzerRestController {
         if(dodavanjeNovogArtiklaDto.getTip() == null)
         {
             podaciGreske.put("Tip", "Tip je obavezan podatak");
+        }
+
+        return podaciGreske;
+    }
+
+    private HashMap<String, String> ValidacijaAzuriranja(AzuriranjeArtiklaDto azuriranjeArtiklaDto)
+    {
+        HashMap<String, String> podaciGreske = new HashMap<>();
+
+        if(azuriranjeArtiklaDto.getNaziv() == null || azuriranjeArtiklaDto.getNaziv().isEmpty() == true)
+        {
+            podaciGreske.put("Naziv", "Naziv je obavezan podatak");
+        }
+
+        if(azuriranjeArtiklaDto.getCena() == null)
+        {
+            podaciGreske.put("Cena", "Cena je obavezan podatak");
+        }
+
+        if(azuriranjeArtiklaDto.getTip() == null)
+        {
+            podaciGreske.put("Tip", "Tip je obavezan podatak");
+        }
+
+        if(azuriranjeArtiklaDto.getKolicina() == null)
+        {
+            podaciGreske.put("Kolicina", "Kolicina ne moze biti null");
+        }
+
+        if(azuriranjeArtiklaDto.getId() == null)
+        {
+            podaciGreske.put("Id", "Id je obavezan da se unese ako zelite da azurirate neki proizvod");
+        }
+
+        if(azuriranjeArtiklaDto.getOpis() == null)
+        {
+            podaciGreske.put("Opis", "Opis ne moze biti null");
         }
 
         return podaciGreske;

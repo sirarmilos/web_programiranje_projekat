@@ -6,15 +6,22 @@ public class PretragaRestoranaDto {
 
     private String naziv;
     private String tip;
-    private Lokacija lokacija;
+    private String adresa;
+    // private Lokacija lokacija;
 
     public PretragaRestoranaDto() {
     }
 
-    public PretragaRestoranaDto(String naziv, String tip, Lokacija lokacija) {
+    /*public PretragaRestoranaDto(String naziv, String tip, Lokacija lokacija) {
         this.naziv = naziv;
         this.tip = tip;
         this.lokacija = lokacija;
+    }*/
+
+    public PretragaRestoranaDto(String naziv, String tip, String adresa) {
+        this.naziv = naziv;
+        this.tip = tip;
+        this.adresa = adresa;
     }
 
     public String getNaziv() {
@@ -33,11 +40,19 @@ public class PretragaRestoranaDto {
         this.tip = tip;
     }
 
-    public Lokacija getLokacija() {
+    public String getAdresa() {
+        return adresa;
+    }
+
+    public void setAdresa(String adresa) {
+        this.adresa = adresa;
+    }
+
+    /*public Lokacija getLokacija() {
         return lokacija;
     }
 
     public void setLokacija(Lokacija lokacija) {
         this.lokacija = lokacija;
-    }
+    }*/
 }

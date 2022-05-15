@@ -1,6 +1,7 @@
 package vezbe.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import vezbe.demo.dto.PretragaRestoranaDto;
 import vezbe.demo.model.Porudzbina;
@@ -34,18 +35,36 @@ public class RestoranService {
     }
 
     public List<Restoran> PretragaRestorana(PretragaRestoranaDto pretragaRestoranaDto) throws Exception {
-        //List<Restoran> restorani = restoranRepository.findAllByNazivContainsAndTipContainsAndLokacijaContains(pretragaRestoranaDto.getNaziv(), pretragaRestoranaDto.getTip(), pretragaRestoranaDto.getLokacija());
+        //List<Restoran> restorani = restoranRepository.findAllByNazivStartingWithAndTipStartingWithAndLokacijaContains(pretragaRestoranaDto.getNaziv(), pretragaRestoranaDto.getTip(), pretragaRestoranaDto.getAdresa());
         //List<Restoran> restorani = restoranRepository.findAllByNazivStartingWithAndTipStartingWith(pretragaRestoranaDto.getNaziv(), pretragaRestoranaDto.getTip());
-        List<Restoran> restorani = restoranRepository.findByTipLike(pretragaRestoranaDto.getTip());
+        // List<Restoran> restorani = restoranRepository.findAllByTipStartingWith(pretragaRestoranaDto.getTip());
+
+        List<Restoran> trazeniRestorani = new ArrayList<>();
+
+        List<Restoran> sviRestorani = restoranRepository.findAll();
+
+        for(Restoran restoran : sviRestorani)
+        {
+            System.out.println(restoran.getNaziv());
+            System.out.println(restoran.getTip());
+            System.out.println(restoran.getLokacija().getAdresa());
+            if(restoran.getNaziv().startsWith(pretragaRestoranaDto.getNaziv()) == true && restoran.getTip().startsWith(pretragaRestoranaDto.getTip()) == true && restoran.getLokacija().getAdresa().startsWith(pretragaRestoranaDto.getAdresa()) == true)
+            {
+                System.out.println("isti su");
+                trazeniRestorani.add(restoran);
+            }
+        }
 
         System.out.println("JESTE");
 
-        if(restorani.isEmpty() == true)
+        if(trazeniRestorani.isEmpty() == true)
         {
             throw new Exception("Ne postoji trazeni restoran");
         }
 
-        return  restorani;
+        System.out.println("JESTE");
+
+        return trazeniRestorani;
     }
 
     public Restoran NadjiRestoranPoId(Long id)

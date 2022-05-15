@@ -2,6 +2,8 @@ package vezbe.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vezbe.demo.dto.AzuriranjeArtiklaDto;
+import vezbe.demo.dto.DodavanjeNovogArtiklaDto;
 import vezbe.demo.model.Artikal;
 import vezbe.demo.model.Korisnik;
 import vezbe.demo.model.Restoran;
@@ -41,35 +43,45 @@ public class ArtikalService {
         }
     }
 
-    public boolean ObrisiArtikal(Long id)
+    public void ObrisiArtikal(Artikal artikal)
     {
-        //Optional<Artikal> artikal = artikalRepository.findById(id);
-        Boolean provera =  ProveraZaBrisanje(id, (List<Artikal>) (List<?>)artikalRepository.findAll());
+        artikalRepository.delete(artikal);
 
-        /*if(artikal.isPresent())
-        {
-            System.out.println(artikal.get());
-            System.out.println(id);
-             //artikalRepository.deleteById(id);
-            Artikal artikal1 = artikal.get();
-            artikalRepository.delete(artikal1);
-            return true;
-        }*/
-
-        return provera;
     }
 
-    private Boolean ProveraZaBrisanje(Long id, List<Artikal> set)
+    public Artikal NadjiArtikal(Long id)
     {
-        for(Artikal artikal : set)
+        return artikalRepository.findAllById(id);
+    }
+
+    public Artikal AzurirajArtikal(AzuriranjeArtiklaDto azuriranjeArtiklaDto)
+    {
+        Artikal artikal = artikalRepository.findArtikalById(azuriranjeArtiklaDto.getId());
+
+        artikal.setNaziv(azuriranjeArtiklaDto.getNaziv());
+        artikal.setCena(azuriranjeArtiklaDto.getCena());
+        if(azuriranjeArtiklaDto.getTip().equals("Jelo"))
         {
-            if(artikal.getId().equals(id))
-            {
-                artikalRepository.delete(artikal);
-                return true;
-            }
+            artikal.setTip(Artikal.Tip.Jelo);
         }
-        return false;
-    }
+        else
+        {
+            artikal.setTip(Artikal.Tip.Pice);
+        }
 
+        if(azuriranjeArtiklaDto.getKolicina().equals("ml"))
+        {
+            artikal.setKolicina(Artikal.Kolicina.ml);
+        }
+        else
+        {
+            artikal.setKolicina(Artikal.Kolicina.g);
+        }
+
+        artikal.setOpis(azuriranjeArtiklaDto.getOpis());
+
+        artikalRepository.save(artikal);
+
+        return artikal;
+    }
 }
