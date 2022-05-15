@@ -44,7 +44,6 @@ public class AdminRestController {
     //public ResponseEntity KreiranjeMenadzera(@RequestBody KreiranjeMenadzeraDto kreiranjeMenadzeraDto, @RequestBody KreiranjeRestoranaDto kreiranjeRestoranaDto, @RequestBody KreiranjeLokacijeDto kreiranjeLokacijeDto, HttpSession sesija)
     //public ResponseEntity KreiranjeMenadzera(@RequestBody KreiranjeMenadzeraDto kreiranjeMenadzeraDto, KreiranjeRestoranaDto kreiranjeRestoranaDto, KreiranjeLokacijeDto kreiranjeLokacijeDto, HttpSession sesija)
     public ResponseEntity KreiranjeMenadzera(@RequestBody KreiranjeTriDto kreiranjeTriDto, HttpSession sesija)
-
     {
         /*
         {
@@ -131,6 +130,57 @@ public class AdminRestController {
 
         try{
             adminService.KreiranjeDostavljaca(dostavljac, "Dostavljac");
+        } catch (Exception e){
+            podaciGreske.put("Korisnicko ime", e.getMessage());
+        }
+
+        if(podaciGreske.isEmpty() == false)
+        {
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity("Ok", HttpStatus.OK);
+    }
+
+    @PostMapping("api/admin/kreiraj_restoran")
+    public ResponseEntity KreiranjeRestoran(@RequestBody KreiranjeTriDto kreiranjeTriDto, HttpSession sesija)
+    {
+        HashMap<String, String> podaciGreske = ValidacijaT1(kreiranjeTriDto);// HashMap<String, String> podaciGreske = Validacija(kreiranjeMenadzeraDto);
+
+        if(podaciGreske.isEmpty() == false)
+        {
+            return new ResponseEntity<>(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
+
+        Boolean povratna = sesijaService.validacijaUloge(sesija, "Admin");
+
+        if(povratna == false)
+        {
+            return new ResponseEntity("Vi niste admin i ne mozete da kreirate restoran", HttpStatus.BAD_REQUEST);
+        }
+
+        // prvo kreiram lokaciju, pa onda nakacim to na restoran koji kreiram, pa onda to vezem za menadzera kojeg kreiram
+
+        Lokacija lokacija = kreiranjeTriDto.PrebaciULokaciju();// Lokacija lokacija = kreiranjeLokacijeDto.PrebaciULokaciju();
+
+        try{
+            adminService.KreiranjeLokacije(lokacija);
+        } catch (Exception e){
+            podaciGreske.put("Lokacija", e.getMessage());
+        }
+
+        Restoran restoran = kreiranjeTriDto.PrebaciURestoran(lokacija);// Restoran restoran = kreiranjeRestoranaDto.PrebaciURestoran();
+
+        try{
+            adminService.KreiranjeRestorana(restoran);
+        } catch (Exception e){
+            podaciGreske.put("Restoran", e.getMessage());
+        }
+
+        Menadzer menadzer = kreiranjeTriDto.PrebaciUMenadzera(restoran);// Menadzer menadzer = kreiranjeMenadzeraDto.PrebaciUMenadzera(restoran);
+
+        try{
+            adminService.KreiranjeMenadzera(menadzer, "Menadzer");
         } catch (Exception e){
             podaciGreske.put("Korisnicko ime", e.getMessage());
         }
