@@ -64,8 +64,28 @@ public class RestoranRestController {
     }
 
     @GetMapping("api/restoran/pretraga")
-    public ResponseEntity PretragaRestorana(@RequestBody PretragaRestoranaDto pretragaRestoranaDto)
+    public ResponseEntity PretragaRestorana(@RequestBody PretragaRestoranaDto pretragaRestoranaDto, HttpSession sesija)
     {
+        Boolean povratna;
+        povratna = sesijaService.validacijaUloge(sesija, "Admin");
+        if(povratna != true)
+        {
+            povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
+            if(povratna != true)
+            {
+                povratna = sesijaService.validacijaUloge(sesija, "Dostavljac");
+                if(povratna != true)
+                {
+                    povratna = sesijaService.validacijaUloge(sesija, "Kupac");
+                }
+            }
+        }
+
+        if(povratna == false)
+        {
+            return new ResponseEntity("Ne mozete da vidite podatke o restoranima, zato sto niste nijedan tip korisnika. Ulogujte se.", HttpStatus.BAD_REQUEST);
+        }
+
         HashMap<String, String> podaciGreske = new HashMap<>();
 
         List<Restoran> trazeniRestorani = null;
@@ -112,14 +132,12 @@ public class RestoranRestController {
 
         if(restoran == null)
         {
-            return new ResponseEntity("Ne postoji restoran sa zadatim ID-jem", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Ne postoji restoran sa zadatim ID-jem.", HttpStatus.BAD_REQUEST);
         }
 
         List<Artikal> listArtikalaIzRestorana = artikalService.NadjiSveArtikleIzDatogRestorana(restoran);
 
         Lokacija lokacija = restoran.getLokacija();
-
-        //StatusEnum status;
 
         LocalTime trenutno = LocalTime.now();
         LocalTime granica = LocalTime.of(20, 0,0);
@@ -130,12 +148,10 @@ public class RestoranRestController {
 
         if(razlika <= 0)
         {
-            //status = StatusEnum.NE_RADI;
             b = true;
         }
         else
         {
-            //status = StatusEnum.RADI;
             b = false;
         }
 

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vezbe.demo.dto.AzuriranjeKorisnikDto;
 import vezbe.demo.dto.LogovanjeDto;
 import vezbe.demo.dto.PregledPodatakaDto;
 import vezbe.demo.dto.RegistracijaDto;
@@ -30,10 +31,30 @@ public class KorisnikRestController {
     {
         HashMap<String, String> podaciGreske = new HashMap<>();
 
+        Boolean povratna;
+        povratna = sesijaService.validacijaUloge(sesija, "Admin");
+        if(povratna != true)
+        {
+            povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
+            if(povratna != true)
+            {
+                povratna = sesijaService.validacijaUloge(sesija, "Dostavljac");
+                if(povratna != true)
+                {
+                    povratna = sesijaService.validacijaUloge(sesija, "Kupac");
+                }
+            }
+        }
+
+        if(povratna == false)
+        {
+            return new ResponseEntity("Ne mozete da vidite svoje podatke, zato sto niste nijedan tip korisnika. Ulogujte se.", HttpStatus.BAD_REQUEST);
+        }
+
         Korisnik korisnik = null;
 
         try{
-            korisnik = korisnikService.PregledPodataka(sesijaService.getKorisnickoIme(sesija));//(pregledPodatakaDto.getKorisnickoIme());
+            korisnik = korisnikService.PregledPodataka(sesijaService.getKorisnickoIme(sesija));
         } catch (AccountNotFoundException e)
         {
             podaciGreske.put("Korisnicko ime", e.getMessage());
@@ -48,59 +69,72 @@ public class KorisnikRestController {
     }
 
     @PutMapping("api/korisnik/azuriranje_podataka")
-    public ResponseEntity AzuriranjePodataka(@RequestBody RegistracijaDto registracijaDto, HttpSession sesija)
+    public ResponseEntity AzuriranjePodataka(@RequestBody AzuriranjeKorisnikDto azuriranjeKorisnikDto, HttpSession sesija)
     {
+        Boolean povratna;
+        povratna = sesijaService.validacijaUloge(sesija, "Admin");
+        if(povratna != true)
+        {
+            povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
+            if(povratna != true)
+            {
+                povratna = sesijaService.validacijaUloge(sesija, "Dostavljac");
+                if(povratna != true)
+                {
+                    povratna = sesijaService.validacijaUloge(sesija, "Kupac");
+                }
+            }
+        }
+
+        if(povratna == false)
+        {
+            return new ResponseEntity("Ne mozete da azurirate podatke o korisniku, zato sto niste nijedan tip korisnika. Ulogujte se.", HttpStatus.BAD_REQUEST);
+        }
+
         String korisnickoIme = sesijaService.getKorisnickoIme(sesija);
 
-        if(korisnickoIme.equals(registracijaDto.getKorisnickoIme()) == false)
+        if(korisnickoIme.equals(azuriranjeKorisnikDto.getKorisnickoIme()) == false)
         {
-            return new ResponseEntity("Ne mozete da menjate podatke od druge osobe.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Ne mozete da menjate podatke drugog korisnika.", HttpStatus.BAD_REQUEST);
         }
 
-        if(korisnickoIme.isEmpty() == true)
-        {
-            return new ResponseEntity("Odbaceno", HttpStatus.FORBIDDEN);
-        }
-
-        String uloga = sesijaService.getUloga(sesija);
-
-        registracijaDto.setKorisnickoIme(korisnickoIme);
-
-        HashMap<String, String> podaciGreske = Validacija(registracijaDto);
+        HashMap<String, String> podaciGreske = ValidacijaAzuriranje(azuriranjeKorisnikDto);
 
         if(podaciGreske.isEmpty() == false)
         {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity(korisnikService.Azuriranje(registracijaDto), HttpStatus.OK);
+        azuriranjeKorisnikDto.setKorisnickoIme(korisnickoIme);
+
+        return new ResponseEntity(korisnikService.Azuriranje(azuriranjeKorisnikDto), HttpStatus.OK);
     }
 
-    private HashMap<String, String> Validacija(RegistracijaDto registracijaDto)
+    private HashMap<String, String> ValidacijaAzuriranje(AzuriranjeKorisnikDto azuriranjeKorisnikDto)
     {
-            HashMap<String, String> podaciGreske = new HashMap<>();
+        HashMap<String, String> podaciGreske = new HashMap<>();
 
-            if(registracijaDto.getIme().isEmpty() == true)
-            {
-                podaciGreske.put("Ime ", "Ime je obavezan podatak");
-            }
+        if(azuriranjeKorisnikDto.getKorisnickoIme() == null || azuriranjeKorisnikDto.getKorisnickoIme().equals("") == true)
+        {
+            podaciGreske.put("Korisnicko ime ", "Korisnicko ime je obavezan podatak.");
+        }
 
-            if(registracijaDto.getPrezime().isEmpty() == true)
-            {
-                podaciGreske.put("Prezime", "Prezime je obavezan podatak");
-            }
+        if(azuriranjeKorisnikDto.getLozinka() == null || azuriranjeKorisnikDto.getLozinka().equals("") == true)
+        {
+            podaciGreske.put("Lozinka", "Lozinka je obavezan podatak.");
+        }
 
-            if(registracijaDto.getKorisnickoIme().isEmpty() == true)
-            {
-                podaciGreske.put("Korisnicko ime", "Korisnicko ime je obavezan podatak");
-            }
+        if(azuriranjeKorisnikDto.getIme() == null || azuriranjeKorisnikDto.getIme().equals("") == true)
+        {
+            podaciGreske.put("Ime", "Ime je obavezan podatak.");
+        }
 
-            if(registracijaDto.getLozinka().isEmpty() == true)
-            {
-                podaciGreske.put("Lozinka", "Lozinka je obavezan podatak");
-            }
+        if(azuriranjeKorisnikDto.getPrezime() == null || azuriranjeKorisnikDto.getPrezime().equals("") == true)
+        {
+            podaciGreske.put("Prezime", "Prezime je obavezan podatak.");
+        }
 
-            return podaciGreske;
+        return podaciGreske;
     }
 
 

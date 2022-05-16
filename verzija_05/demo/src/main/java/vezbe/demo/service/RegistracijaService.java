@@ -14,19 +14,11 @@ public class RegistracijaService {
     @Autowired
     private KupacRepository kupacRepository;
 
-    public void Registracija(Korisnik korisnik, String uloga) throws Exception
+    public void Registracija(Korisnik korisnik) throws Exception
     {
         Provera(korisnik.getKorisnickoIme(), (List<Korisnik>) (List<?>)kupacRepository.findAll());
 
-        if(uloga.equals("Kupac"))
-        {
-            kupacRepository.save((Kupac) korisnik);
-        }
-        else
-        {
-            throw new Exception("Ne mozete se registovati sa ovom ulogom: " + uloga);
-        }
-
+        kupacRepository.save((Kupac) korisnik);
     }
 
     private void Provera(String korisnickoIme, List<Korisnik> set) throws Exception
@@ -35,7 +27,7 @@ public class RegistracijaService {
         {
             if(korisnik.getKorisnickoIme().equals(korisnickoIme))
             {
-                throw new Exception("Korisnik sa korisnickim imenom: " + korisnickoIme + " vec postoji!");
+                throw new Exception("Korisnik sa korisnickim imenom: " + korisnickoIme + " vec postoji.");
             }
         }
     }

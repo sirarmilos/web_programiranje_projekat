@@ -64,7 +64,7 @@ public class Artikal implements Serializable {
     public Artikal(String naziv, BigDecimal cena, String tip, String kolicina, String opis, Restoran restoran) {
         this.naziv = naziv;
         this.cena = cena;
-        if(tip == "Jelo")
+        if(tip.equals("Jelo") == true)
         {
             this.tip = Tip.Jelo;
         }
@@ -73,11 +73,11 @@ public class Artikal implements Serializable {
             this.tip = Tip.Pice;
         }
 
-        if(kolicina == "g")
+        if(kolicina.equals("g") == true)
         {
             this.kolicina = Kolicina.g;
         }
-        else if(kolicina == "ml")
+        else
         {
             this.kolicina = Kolicina.ml;
         }

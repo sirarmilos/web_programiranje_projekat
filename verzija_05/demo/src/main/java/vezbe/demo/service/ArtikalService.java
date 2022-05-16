@@ -3,14 +3,12 @@ package vezbe.demo.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vezbe.demo.dto.AzuriranjeArtiklaDto;
-import vezbe.demo.dto.DodavanjeNovogArtiklaDto;
+import vezbe.demo.dto.AzuriranjeKorisnikDto;
 import vezbe.demo.model.Artikal;
-import vezbe.demo.model.Korisnik;
 import vezbe.demo.model.Restoran;
 import vezbe.demo.repository.ArtikalRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ArtikalService {
@@ -46,12 +44,26 @@ public class ArtikalService {
     public void ObrisiArtikal(Artikal artikal)
     {
         artikalRepository.delete(artikal);
-
     }
 
     public Artikal NadjiArtikal(Long id)
     {
         return artikalRepository.findAllById(id);
+    }
+
+    public Boolean NadjiRestoranOvogArtikla(Long id, Restoran restoran)
+    {
+        List<Artikal> listaArtikala = artikalRepository.findByRestoran(restoran);
+
+        for(Artikal artikal : listaArtikala)
+        {
+            if(artikal.getId().equals(id))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Artikal AzurirajArtikal(AzuriranjeArtiklaDto azuriranjeArtiklaDto)
@@ -69,16 +81,26 @@ public class ArtikalService {
             artikal.setTip(Artikal.Tip.Pice);
         }
 
-        if(azuriranjeArtiklaDto.getKolicina().equals("ml"))
-        {
-            artikal.setKolicina(Artikal.Kolicina.ml);
-        }
-        else
+        if(azuriranjeArtiklaDto.getKolicina() == null)
         {
             artikal.setKolicina(Artikal.Kolicina.g);
         }
+        else
+        {
+            if (azuriranjeArtiklaDto.getKolicina().equals("ml"))
+            {
+                artikal.setKolicina(Artikal.Kolicina.ml);
+            }
+            else
+            {
+                artikal.setKolicina(Artikal.Kolicina.g);
+            }
+        }
 
-        artikal.setOpis(azuriranjeArtiklaDto.getOpis());
+        if(azuriranjeArtiklaDto.getOpis() != null)
+        {
+            artikal.setOpis(azuriranjeArtiklaDto.getOpis());
+        }
 
         artikalRepository.save(artikal);
 

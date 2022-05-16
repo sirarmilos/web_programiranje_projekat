@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vezbe.demo.dto.LogovanjeDto;
+import vezbe.demo.dto.RegistracijaDto;
 import vezbe.demo.model.Korisnik;
 import vezbe.demo.service.LogovanjeService;
 import vezbe.demo.service.SesijaService;
@@ -28,16 +29,11 @@ public class LogovanjeRestController {
     @PostMapping("api/logovanje")
     public ResponseEntity Logovanje(@RequestBody LogovanjeDto logovanjeDto, HttpSession sesija)
     {
-        HashMap<String, String> podaciGreske = new HashMap<>();
+        HashMap<String, String> podaciGreske = ValidacijaLogovanja(logovanjeDto);
 
-        if(logovanjeDto.getKorisnickoIme() == null || logovanjeDto.getKorisnickoIme().isEmpty() == true)
+        if(podaciGreske.isEmpty() == false)
         {
-            podaciGreske.put("Korisnicko ime", "Korisnicko ime je obavezan podatak");
-        }
-
-        if(logovanjeDto.getLozinka() == null || logovanjeDto.getLozinka().isEmpty() == true)
-        {
-            podaciGreske.put("Lozinka", "Lozinka je obavezno polje");
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
         Korisnik korisnik = null;
@@ -61,5 +57,22 @@ public class LogovanjeRestController {
         sesija.setAttribute("korisnickoIme", korisnik.getKorisnickoIme());
 
         return new ResponseEntity(korisnik, HttpStatus.OK);
+    }
+
+    private HashMap<String, String> ValidacijaLogovanja(LogovanjeDto logovanjeDto)
+    {
+        HashMap<String, String> podaciGreske = new HashMap<>();
+
+        if(logovanjeDto.getKorisnickoIme() == null || logovanjeDto.getKorisnickoIme().isEmpty() == true)
+        {
+            podaciGreske.put("Korisnicko ime", "Korisnicko ime je obavezan podatak");
+        }
+
+        if(logovanjeDto.getLozinka() == null || logovanjeDto.getLozinka().isEmpty() == true)
+        {
+            podaciGreske.put("Lozinka", "Lozinka je obavezno polje");
+        }
+
+        return podaciGreske;
     }
 }

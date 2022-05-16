@@ -19,21 +19,6 @@ public class KupacService {
         return kupacRepository.findAll();
     }
 
-    /*public Kupac Azuriranje(RegistracijaDto registracijaDto)
-    {
-        Kupac kupac = kupacRepository.findKupacByKorisnickoIme(registracijaDto.getKorisnickoIme());
-
-        kupac.setLozinka(registracijaDto.getLozinka());
-        kupac.setIme(registracijaDto.getIme());
-        kupac.setPrezime(registracijaDto.getPrezime());
-        // kupac.setDatumRodjenja(registracijaDto.PrebaciUKupca().getDatumRodjenja());
-        // kupac.setPol(registracijaDto.PrebaciUKupca().getPol());
-
-        kupacRepository.save(kupac);
-
-        return kupac;
-    }*/
-
     public Kupac findByKorisnickoIme(String korisnickoIme){
         return kupacRepository.findKupacByKorisnickoIme(korisnickoIme);
     }

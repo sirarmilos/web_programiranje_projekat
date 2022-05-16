@@ -2,6 +2,7 @@ package vezbe.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vezbe.demo.dto.AzuriranjeKorisnikDto;
 import vezbe.demo.dto.RegistracijaDto;
 import vezbe.demo.model.Korisnik;
 import vezbe.demo.model.Kupac;
@@ -28,15 +29,21 @@ public class KorisnikService {
         return korisnik;
     }
 
-    public Korisnik Azuriranje(RegistracijaDto registracijaDto)
+    public Korisnik Azuriranje(AzuriranjeKorisnikDto azuriranjeKorisnikDto)
     {
-        Korisnik korisnik = korisnikRepository.findKorisnikByKorisnickoIme(registracijaDto.getKorisnickoIme());
+        Korisnik korisnik = korisnikRepository.findKorisnikByKorisnickoIme(azuriranjeKorisnikDto.getKorisnickoIme());
 
-        korisnik.setLozinka(registracijaDto.getLozinka());
-        korisnik.setIme(registracijaDto.getIme());
-        korisnik.setPrezime(registracijaDto.getPrezime());
-        // kupac.setDatumRodjenja(registracijaDto.PrebaciUKupca().getDatumRodjenja());
-        // kupac.setPol(registracijaDto.PrebaciUKupca().getPol());
+        korisnik.setLozinka(azuriranjeKorisnikDto.getLozinka());
+        korisnik.setIme(azuriranjeKorisnikDto.getIme());
+        korisnik.setPrezime(azuriranjeKorisnikDto.getPrezime());
+        if(azuriranjeKorisnikDto.getDatumRodjenja() != null)
+        {
+            korisnik.setDatumRodjenja(azuriranjeKorisnikDto.getDatumRodjenja());
+        }
+        if(azuriranjeKorisnikDto.getPol() != null && azuriranjeKorisnikDto.getPol().equals("") != true)
+        {
+            korisnik.setPol(azuriranjeKorisnikDto.getPol());
+        }
 
         korisnikRepository.save(korisnik);
 
