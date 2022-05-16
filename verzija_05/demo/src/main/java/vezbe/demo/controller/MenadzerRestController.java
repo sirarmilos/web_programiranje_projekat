@@ -13,6 +13,7 @@ import vezbe.demo.service.RestoranService;
 import vezbe.demo.service.SesijaService;
 
 import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,7 +67,7 @@ public class MenadzerRestController {
     @PostMapping("api/menadzer/dodavanje_novog_artikla")
     public ResponseEntity MenadzerDodajeNoviArtikal(@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto, HttpSession sesija)
     {
-        HashMap<String, String> podaciGreske = Validacija(dodavanjeNovogArtiklaDto);
+        HashMap<String, String> podaciGreske = ValidacijaDodavanja(dodavanjeNovogArtiklaDto);
 
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
 
@@ -91,10 +92,10 @@ public class MenadzerRestController {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity("Menadzer je dodao novi artikal u restoran za koji je zaduzen", HttpStatus.OK);
+        return new ResponseEntity("Menadzer je dodao novi artikal u restoran za koji je zaduzen.", HttpStatus.OK);
     }
 
-    @DeleteMapping("api/menadzer/obrisi_artikal/{id}") // sa @PathVariable kad proradi, ne znam zasto nece
+    @DeleteMapping("api/menadzer/obrisi_artikal/{id}")
     public ResponseEntity ObrisiArtikal(@ModelAttribute Artikal artikal, HttpSession sesija) {
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
 
@@ -125,7 +126,6 @@ public class MenadzerRestController {
             return new ResponseEntity("Ne mozete da obrisete artikal koji nije u restoranu od ovog menadzera.", HttpStatus.BAD_REQUEST);
         }
 
-
         return new ResponseEntity("Artikal je uspesno obrisan", HttpStatus.OK);
     }
 
@@ -143,7 +143,9 @@ public class MenadzerRestController {
         String korisnickoIme = sesijaService.getKorisnickoIme(sesija);
         Restoran restoran = menadzerService.NadjiRestoranGdeMenadzerRadi(korisnickoIme);
 
-        if(restoran.getId().equals(azuriranjeArtiklaDto.getId()) == false)
+        Boolean daLiJeIzTogRestorana = artikalService.NadjiRestoranOvogArtikla(azuriranjeArtiklaDto.getId(), restoran);
+
+        if(daLiJeIzTogRestorana == false)
         {
             return new ResponseEntity("Ne mozete da azurirate artikal koji nije u restoranu od ovog menadzera.", HttpStatus.BAD_REQUEST);
         }
@@ -156,7 +158,7 @@ public class MenadzerRestController {
         return new ResponseEntity(artikalService.AzurirajArtikal(azuriranjeArtiklaDto), HttpStatus.OK);
     }
 
-    private HashMap<String, String> Validacija(DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto)
+    private HashMap<String, String> ValidacijaDodavanja(DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto)
     {
         HashMap<String, String> podaciGreske = new HashMap<>();
 
@@ -165,12 +167,12 @@ public class MenadzerRestController {
             podaciGreske.put("Naziv", "Naziv je obavezan podatak");
         }
 
-        if(dodavanjeNovogArtiklaDto.getCena() == null)
+        if(dodavanjeNovogArtiklaDto.getCena() == null || dodavanjeNovogArtiklaDto.getCena().equals("") == true)
         {
             podaciGreske.put("Cena", "Cena je obavezan podatak");
         }
 
-        if(dodavanjeNovogArtiklaDto.getTip() == null)
+        if(dodavanjeNovogArtiklaDto.getTip() == null || dodavanjeNovogArtiklaDto.getTip().equals("") == true)
         {
             podaciGreske.put("Tip", "Tip je obavezan podatak");
         }
@@ -187,30 +189,42 @@ public class MenadzerRestController {
             podaciGreske.put("Naziv", "Naziv je obavezan podatak");
         }
 
+        BigDecimal nula = new BigDecimal(0);
+
         if(azuriranjeArtiklaDto.getCena() == null)
         {
             podaciGreske.put("Cena", "Cena je obavezan podatak");
         }
+        else if((azuriranjeArtiklaDto.getCena().compareTo(nula)) != 1)
+        {
+            podaciGreske.put("Cena", "Cena mora biti broj veci od 0.");
+        }
 
-        if(azuriranjeArtiklaDto.getTip() == null)
+        if(azuriranjeArtiklaDto.getTip() == null || azuriranjeArtiklaDto.getTip().isEmpty() == true)
         {
             podaciGreske.put("Tip", "Tip je obavezan podatak");
         }
 
-        if(azuriranjeArtiklaDto.getKolicina() == null)
+       /* if(azuriranjeArtiklaDto.getKolicina() == null || azuriranjeArtiklaDto.getKolicina().isEmpty() == true)
         {
             podaciGreske.put("Kolicina", "Kolicina ne moze biti null");
-        }
+        }*/
+
+        Long nulaLong = 0l;
 
         if(azuriranjeArtiklaDto.getId() == null)
         {
             podaciGreske.put("Id", "Id je obavezan da se unese ako zelite da azurirate neki proizvod");
         }
+        else if(azuriranjeArtiklaDto.getId().compareTo(nulaLong) != 1)
+        {
+            podaciGreske.put("Id", "Id mora biti broj veci od 0");
+        }
 
-        if(azuriranjeArtiklaDto.getOpis() == null)
+       /* if(azuriranjeArtiklaDto.getOpis() == null || azuriranjeArtiklaDto.getOpis().isEmpty() == true)
         {
             podaciGreske.put("Opis", "Opis ne moze biti null");
-        }
+        }*/
 
         return podaciGreske;
     }

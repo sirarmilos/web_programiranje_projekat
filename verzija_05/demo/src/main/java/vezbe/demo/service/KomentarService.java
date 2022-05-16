@@ -8,17 +8,17 @@ import vezbe.demo.repository.KomentarRepository;
 
 import java.util.List;
 
-enum Ocena{JakoLose, Lose, Dobro, VeomaDobro, Odlicno}
-
 @Service
 public class KomentarService {
 
     @Autowired
     private KomentarRepository komentarRepository;
 
+    enum Ocena{JakoLose, Lose, Dobro, VeomaDobro, Odlicno}
+
     public String ProsecnaOcena(Restoran restoran)
     {
-        List<Komentar> komentari = komentarRepository.findByRestoran(restoran);//(List<Komentar>)restoran.getKomentari();
+        List<Komentar> komentari = komentarRepository.findByRestoran(restoran);
 
         double prosecna_ocena = 0;
         int broj = 0;

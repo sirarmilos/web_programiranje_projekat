@@ -35,9 +35,6 @@ public class RestoranService {
     }
 
     public List<Restoran> PretragaRestorana(PretragaRestoranaDto pretragaRestoranaDto) throws Exception {
-        //List<Restoran> restorani = restoranRepository.findAllByNazivStartingWithAndTipStartingWithAndLokacijaContains(pretragaRestoranaDto.getNaziv(), pretragaRestoranaDto.getTip(), pretragaRestoranaDto.getAdresa());
-        //List<Restoran> restorani = restoranRepository.findAllByNazivStartingWithAndTipStartingWith(pretragaRestoranaDto.getNaziv(), pretragaRestoranaDto.getTip());
-        // List<Restoran> restorani = restoranRepository.findAllByTipStartingWith(pretragaRestoranaDto.getTip());
 
         List<Restoran> trazeniRestorani = new ArrayList<>();
 
@@ -50,30 +47,25 @@ public class RestoranService {
             System.out.println(restoran.getLokacija().getAdresa());
             if(restoran.getNaziv().startsWith(pretragaRestoranaDto.getNaziv()) == true && restoran.getTip().startsWith(pretragaRestoranaDto.getTip()) == true && restoran.getLokacija().getAdresa().startsWith(pretragaRestoranaDto.getAdresa()) == true)
             {
-                System.out.println("isti su");
                 trazeniRestorani.add(restoran);
             }
         }
 
-        System.out.println("JESTE");
-
         if(trazeniRestorani.isEmpty() == true)
         {
-            throw new Exception("Ne postoji trazeni restoran");
+            throw new Exception("Ne postoji trazeni restoran.");
         }
-
-        System.out.println("JESTE");
 
         return trazeniRestorani;
     }
 
     public Restoran NadjiRestoranPoId(Long id)
     {
-        Optional<Restoran> restoran = restoranRepository.findById(id);
+        Restoran restoran = restoranRepository.findRestoranById(id);
 
-        if(restoran.isPresent())
+        if(restoran != null)
         {
-            return restoran.get();
+            return restoran;
         }
 
         return null;

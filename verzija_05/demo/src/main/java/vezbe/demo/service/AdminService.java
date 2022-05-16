@@ -36,41 +36,41 @@ public class AdminService {
         return listaSvihKorisnika;
     }
 
-    public void KreiranjeMenadzera(Korisnik korisnik, String uloga) throws Exception
+    public void KreiranjeMenadzera(Korisnik korisnik) throws Exception
     {
-        Provera(korisnik.getKorisnickoIme(), (List<Korisnik>) (List<?>)korisnikRepository.findAll());
+        ProveraMenadzer(korisnik.getKorisnickoIme(), (List<Korisnik>) (List<?>)korisnikRepository.findAll());
 
         menadzerRepository.save((Menadzer) korisnik);
     }
 
     public void KreiranjeLokacije(Lokacija lokacija) throws Exception
     {
-        ProveraLokacija(lokacija.getAdresa(), (List<Lokacija>)lokacijaRepository.findAll());
+        ProveraLokacija(lokacija.getAdresa(), lokacijaRepository.findAll());
 
         lokacijaRepository.save(lokacija);
     }
 
     public void KreiranjeRestorana(Restoran restoran) throws Exception
     {
-        ProveraRestorana(restoran.getNaziv(), (List<Restoran>)restoranRepository.findAll());
+        ProveraRestorana(restoran.getNaziv(), restoranRepository.findAll());
 
         restoranRepository.save(restoran);
     }
 
-    public void KreiranjeDostavljaca(Korisnik korisnik, String uloga) throws Exception
+    public void KreiranjeDostavljaca(Korisnik korisnik) throws Exception
     {
-        Provera(korisnik.getKorisnickoIme(), (List<Korisnik>) (List<?>)korisnikRepository.findAll());
+        ProveraDostavljac(korisnik.getKorisnickoIme(), (List<Korisnik>) (List<?>)korisnikRepository.findAll());
 
         dostavljacRepository.save((Dostavljac) korisnik);
     }
 
-    private void Provera(String korisnickoIme, List<Korisnik> set) throws Exception
+    private void ProveraMenadzer(String korisnickoIme, List<Korisnik> set) throws Exception
     {
         for(Korisnik korisnik : set)
         {
             if(korisnik.getKorisnickoIme().equals(korisnickoIme))
             {
-                throw new Exception("Korisnik sa korisnickim imenom: " + korisnickoIme + " vec postoji!");
+                throw new Exception("Korisnik sa korisnickim imenom: " + korisnickoIme + " vec postoji.");
             }
         }
     }
@@ -81,7 +81,7 @@ public class AdminService {
         {
             if(lokacija.getAdresa().equals(adresa))
             {
-                throw new Exception("Lokacija sa ovom adresom: " + adresa + " vec postoji!");
+                throw new Exception("Lokacija sa ovom adresom: " + adresa + " vec postoji.");
             }
         }
     }
@@ -92,7 +92,18 @@ public class AdminService {
         {
             if(restoran.getNaziv().equals(nazivRestorana))
             {
-                throw new Exception("Restoran sa ovim nazivom: " + nazivRestorana + " vec postoji!");
+                throw new Exception("Restoran sa ovim nazivom: " + nazivRestorana + " vec postoji.");
+            }
+        }
+    }
+
+    private void ProveraDostavljac(String korisnickoIme, List<Korisnik> set) throws Exception
+    {
+        for(Korisnik korisnik : set)
+        {
+            if(korisnik.getKorisnickoIme().equals(korisnickoIme))
+            {
+                throw new Exception("Korisnik sa korisnickim imenom: " + korisnickoIme + " vec postoji.");
             }
         }
     }
