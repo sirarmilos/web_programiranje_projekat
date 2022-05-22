@@ -104,7 +104,7 @@ public class PorudzbinaRestController {
         //UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
         if(dto.getKolicina() < 1)
             return ResponseEntity.badRequest().build();
-        
+
         if(porudzbina == null){
             porudzbina = new Porudzbina(artikal.getRestoran(), LocalDateTime.now(), artikal.getCena().multiply(BigDecimal.valueOf(dto.getKolicina())), kupac, Porudzbina.Status.Obrada, null);
             //porudzbinaService.sacuvajPorudzbinu(porudzbina);
@@ -184,4 +184,21 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok(new PregledPorudzbineDto(ret, porudzbina.getCena()));
     }
 
+    @GetMapping("kreiranjePorudzbine")
+    public ResponseEntity kreiranjePorudzbine(HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
+        if(porudzbina == null){
+            return ResponseEntity.badRequest().build();
+        }
+
+        porudzbinaService.sacuvajPorudzbinu(porudzbina);
+
+        return ResponseEntity.ok().build();
+
+    }
+    
 }
