@@ -29,7 +29,7 @@ public class Restoran implements Serializable {
 
     // artikal
 
-    @OneToMany(mappedBy = "restoran", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "restoran", fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
     private Set<Artikal> artikli = new HashSet<>();
 
