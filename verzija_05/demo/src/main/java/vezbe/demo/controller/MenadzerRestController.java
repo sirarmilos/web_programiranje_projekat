@@ -6,11 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.AzuriranjeArtiklaDto;
 import vezbe.demo.dto.DodavanjeNovogArtiklaDto;
+import vezbe.demo.dto.PrikazRestoranaDto;
 import vezbe.demo.model.*;
-import vezbe.demo.service.ArtikalService;
-import vezbe.demo.service.MenadzerService;
-import vezbe.demo.service.RestoranService;
-import vezbe.demo.service.SesijaService;
+import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
@@ -32,6 +30,9 @@ public class MenadzerRestController {
     @Autowired
     private ArtikalService artikalService;
 
+    @Autowired
+    private PorudzbinaService porudzbinaService;
+
     @GetMapping("api/menadzer/pregled_restorana")
     ResponseEntity MenadzerPregledRestorana(HttpSession sesija)
     {
@@ -44,7 +45,13 @@ public class MenadzerRestController {
 
         Restoran restoran = menadzerService.NadjiRestoranGdeMenadzerRadi(sesijaService.getKorisnickoIme(sesija));
 
-        return new ResponseEntity(restoran, HttpStatus.OK);
+        List<Artikal> artikli = artikalService.NadjiSveArtikleIzDatogRestorana(restoran);
+
+        List<Porudzbina> porudzbine = porudzbinaService.dobaviPorudzbinePoRestoranu(restoran);
+
+        PrikazRestoranaDto prikazRestoranaDto = new PrikazRestoranaDto(restoran, artikli, porudzbine);
+
+        return new ResponseEntity(prikazRestoranaDto, HttpStatus.OK);
     }
 
     @GetMapping("api/menadzer/pregled_porudzbina")
@@ -135,6 +142,11 @@ public class MenadzerRestController {
         HashMap<String, String> podaciGreske = ValidacijaAzuriranja(azuriranjeArtiklaDto);
 
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
+
+        if(podaciGreske.isEmpty() == false)
+        {
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
 
         if (povratna == false) {
             return new ResponseEntity("Ne mozete da azurirati artikal, niste menadzer.", HttpStatus.BAD_REQUEST);
