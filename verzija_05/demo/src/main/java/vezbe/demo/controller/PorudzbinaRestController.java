@@ -5,17 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vezbe.demo.dto.ArtikalZaPregledPorudzbineDto;
 import vezbe.demo.dto.PorudzbinaArtikalDto;
+import vezbe.demo.dto.PregledPorudzbineDto;
 import vezbe.demo.model.*;
 import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/porudzbina")
@@ -38,6 +38,16 @@ public class PorudzbinaRestController {
 
     @Autowired
     private ArtikalService artikalService;
+
+    public BigDecimal updateCena(Porudzbina p){
+        BigDecimal suma = BigDecimal.ZERO;
+        for(PorudzbinaArtikal pa: p.getPorudzbineArtikli()){
+            suma = suma.add( pa.getArtikal().getCena().multiply(BigDecimal.valueOf(pa.getKolicina())));
+            System.out.println(suma + "*");
+        }
+
+        return suma;
+    }
 
     @GetMapping("dobaviSve")
     public ResponseEntity<List<Porudzbina>> dobaviSveporudzbinePoUlogovanomKupcu(HttpSession sesija)
@@ -90,25 +100,43 @@ public class PorudzbinaRestController {
         String korisnickoImeKupca = sesijaService.getKorisnickoIme(sesija);
         Kupac kupac = kupacService.findByKorisnickoIme(korisnickoImeKupca);
 
-        Porudzbina porudzbina;
-        UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
-        if(porudzbinaId == null){
+        Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
+        //UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
+        if(dto.getKolicina() < 1)
+            return ResponseEntity.badRequest().build();
+
+        if(porudzbina == null){
             porudzbina = new Porudzbina(artikal.getRestoran(), LocalDateTime.now(), artikal.getCena().multiply(BigDecimal.valueOf(dto.getKolicina())), kupac, Porudzbina.Status.Obrada, null);
-            porudzbinaService.sacuvajPorudzbinu(porudzbina);
-            sesija.setAttribute("porudzbina_id", porudzbina.getId());
-        }else{
-            porudzbina = porudzbinaService.dobaviPorudzbinuPoId(porudzbinaId);
-            porudzbina.setCena(porudzbina.getCena().add(artikal.getCena().multiply(BigDecimal.valueOf(dto.getKolicina()))));
-            porudzbinaService.sacuvajPorudzbinu(porudzbina);
+            //porudzbinaService.sacuvajPorudzbinu(porudzbina);
+            //sesija.setAttribute("porudzbina_id", porudzbina.getId());
+
+        }/*else{
+            //porudzbina = porudzbinaService.dobaviPorudzbinuPoId(porudzbinaId);
+            //porudzbina.setCena(porudzbina.getCena().add(artikal.getCena().multiply(BigDecimal.valueOf(dto.getKolicina()))));
+            //porudzbinaService.sacuvajPorudzbinu(porudzbina);
+        }*/
+
+
+        boolean izmenio = false;
+        Set<PorudzbinaArtikal> porudzbinaArtikali = porudzbina.getPorudzbineArtikli();
+        for(PorudzbinaArtikal pa: porudzbinaArtikali){
+            if(pa.getArtikal().getId() == artikal.getId()){
+                pa.setKolicina(dto.getKolicina());
+                izmenio = true;
+            }
         }
+        if(izmenio == false)
+            porudzbinaArtikali.add(new PorudzbinaArtikal(artikal, porudzbina, dto.getKolicina()));
 
+        porudzbina.setCena(updateCena(porudzbina));
 
-        PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
+        /*PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
+
         if(porudzbinaArtikal == null)
             porudzbinaArtikal = new PorudzbinaArtikal(artikal, porudzbina, dto.getKolicina());
         porudzbinaArtikal.setKolicina(dto.getKolicina());
-        porudzbinaService.sacuvajPorudzbinaArtikal(porudzbinaArtikal);
-
+        porudzbinaService.sacuvajPorudzbinaArtikal(porudzbinaArtikal);*/
+        sesija.setAttribute("porudzbina", porudzbina);
         return ResponseEntity.ok().build();
     }
 
@@ -118,17 +146,59 @@ public class PorudzbinaRestController {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Porudzbina porudzbina;
+
         Artikal artikal = artikalService.NadjiArtikal(id);
-        UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
-        if(porudzbinaId == null){
+        Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
+        if(porudzbina == null){
             return ResponseEntity.badRequest().build();
-        }else{
-            porudzbina = porudzbinaService.dobaviPorudzbinuPoId(porudzbinaId);
         }
-        PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
-        porudzbinaService.obrisiArtikle(porudzbinaArtikal.getId());
+        PorudzbinaArtikal porart = new PorudzbinaArtikal();
+        for(PorudzbinaArtikal pa: porudzbina.getPorudzbineArtikli()){
+            if(pa.getArtikal().getId() == id){
+                porart = pa;
+            }
+        }
+        porudzbina.getPorudzbineArtikli().remove(porart);
+        porudzbina.setCena(updateCena(porudzbina));
+
+
+        //PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
+        //porudzbinaService.obrisiArtikle(porudzbinaArtikal.getId());
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("pregledPorudzbine")
+    public ResponseEntity<PregledPorudzbineDto> dobaviSveArtikleZaPorudzbinu(HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
+        if(porudzbina == null){
+            return ResponseEntity.badRequest().build();
+        }
+
+       List<PorudzbinaArtikal> pa = porudzbina.getPorudzbineArtikli().stream().toList();
+       List<ArtikalZaPregledPorudzbineDto> ret = pa.stream().map(porudzbinaArtikal -> new ArtikalZaPregledPorudzbineDto(porudzbinaArtikal)).collect(Collectors.toList());
+
+        return ResponseEntity.ok(new PregledPorudzbineDto(ret, porudzbina.getCena()));
+    }
+
+    @GetMapping("kreiranjePorudzbine")
+    public ResponseEntity kreiranjePorudzbine(HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
+        if(porudzbina == null){
+            return ResponseEntity.badRequest().build();
+        }
+
+        porudzbinaService.sacuvajPorudzbinu(porudzbina);
+
+        return ResponseEntity.ok().build();
+
+    }
+    
 }

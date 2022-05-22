@@ -56,4 +56,8 @@ public class PorudzbinaService {
         porudzbinaArtikalRepository.deleteById(id);
     }
 
+    public List<PorudzbinaArtikal> dobaviArtikleZaPorudzbinu(Porudzbina p){
+        return porudzbinaArtikalRepository.getByPorudzbina(p);
+    }
+
 }

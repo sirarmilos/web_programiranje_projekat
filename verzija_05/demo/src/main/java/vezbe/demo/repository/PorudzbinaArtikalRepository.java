@@ -15,4 +15,6 @@ import java.util.UUID;
 public interface PorudzbinaArtikalRepository extends JpaRepository<PorudzbinaArtikal, Integer> {
 
     PorudzbinaArtikal getPorudzbinaArtikalByArtikalAndPorudzbina(Artikal artikal, Porudzbina porudzbina);
+
+    List<PorudzbinaArtikal> getByPorudzbina(Porudzbina p);
 }
