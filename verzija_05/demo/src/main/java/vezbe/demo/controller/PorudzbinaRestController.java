@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vezbe.demo.dto.ArtikalZaPregledPorudzbineDto;
+import vezbe.demo.dto.ArtikalZaPregledPorudzbineDto;
 import vezbe.demo.dto.PorudzbinaArtikalDto;
+import vezbe.demo.dto.PregledPorudzbineDto;
 import vezbe.demo.model.*;
 import vezbe.demo.service.*;
 
@@ -16,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/porudzbina")
@@ -104,6 +108,7 @@ public class PorudzbinaRestController {
 
 
         PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
+
         if(porudzbinaArtikal == null)
             porudzbinaArtikal = new PorudzbinaArtikal(artikal, porudzbina, dto.getKolicina());
         porudzbinaArtikal.setKolicina(dto.getKolicina());
@@ -129,6 +134,26 @@ public class PorudzbinaRestController {
         PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
         porudzbinaService.obrisiArtikle(porudzbinaArtikal.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("pregledPorudzbine")
+    public ResponseEntity<PregledPorudzbineDto> dobaviSveArtikleZaPorudzbinu(HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Porudzbina porudzbina = new Porudzbina();
+        UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
+        if(porudzbinaId == null){
+            return null;
+        }else{
+           porudzbina = porudzbinaService.dobaviPorudzbinuPoId(porudzbinaId);
+        }
+
+       List<PorudzbinaArtikal> pa = porudzbinaService.dobaviArtikleZaPorudzbinu(porudzbina);
+       List<ArtikalZaPregledPorudzbineDto> ret = pa.stream().map(porudzbinaArtikal -> new ArtikalZaPregledPorudzbineDto(porudzbinaArtikal)).collect(Collectors.toList());
+
+        return ResponseEntity.ok(new PregledPorudzbineDto(ret, porudzbina.getCena()));
     }
 
 }
