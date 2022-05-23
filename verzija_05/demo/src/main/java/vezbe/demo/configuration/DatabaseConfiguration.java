@@ -206,12 +206,15 @@ public class DatabaseConfiguration {
 
         Porudzbina porudzbina4 = new Porudzbina(restoran2, datumIVremePorudzbine4, c4, kupac2, Porudzbina.Status.CekaDostavljaca, dostavljac2);
 
+        Porudzbina porudzbina5 = new Porudzbina(restoran1, datumIVremePorudzbine2, c1, kupac1, Porudzbina.Status.Obrada, dostavljac3);
+
 
 
         porudzbinaRepository.save(porudzbina1);
         porudzbinaRepository.save(porudzbina2);
         porudzbinaRepository.save(porudzbina3);
         porudzbinaRepository.save(porudzbina4);
+        porudzbinaRepository.save(porudzbina5);
 
         PorudzbinaArtikal pa1 = new PorudzbinaArtikal(artikal1, porudzbina1, 3);
         PorudzbinaArtikal pa2 = new PorudzbinaArtikal(artikal2, porudzbina1, 2);

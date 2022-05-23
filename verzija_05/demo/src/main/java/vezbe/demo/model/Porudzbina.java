@@ -1,6 +1,7 @@
 package vezbe.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ public class Porudzbina implements Serializable {
     public enum Status {Obrada, UPripremi, CekaDostavljaca, UTransportu, Dostavljena, Otkazana}
 
     @Id
+    @Type(type="uuid-char")
     private UUID id = UUID.randomUUID();
 
     // porudzbina - porudzbinaArtikal - artikal

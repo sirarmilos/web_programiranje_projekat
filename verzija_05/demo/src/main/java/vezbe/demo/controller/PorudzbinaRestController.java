@@ -200,5 +200,47 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok().build();
 
     }
-    
+
+    @PutMapping("izmenaStatusaUPripremi/{uuid}")
+    public ResponseEntity promeniStatusUPripremi(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        String user = sesijaService.getKorisnickoIme(sesija);
+        Restoran restoran = menadzerService.NadjiRestoranGdeMenadzerRadi(user);
+        Porudzbina p = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        if(p.getStatus() == Porudzbina.Status.Obrada && restoran.getId().equals(p.getRestoran().getId())) {
+            p.setStatus(Porudzbina.Status.UPripremi);
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        porudzbinaService.sacuvajPorudzbinu(p);
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PutMapping("izmenaStatusaCekaDostavljaca/{uuid}")
+    public ResponseEntity promeniStatusCekaDostavljaca(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        String user = sesijaService.getKorisnickoIme(sesija);
+        Restoran restoran = menadzerService.NadjiRestoranGdeMenadzerRadi(user);
+        Porudzbina p = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        if(p.getStatus() == Porudzbina.Status.UPripremi && restoran.getId().equals(p.getRestoran().getId())) {
+            p.setStatus(Porudzbina.Status.CekaDostavljaca);
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        porudzbinaService.sacuvajPorudzbinu(p);
+        return ResponseEntity.ok().build();
+
+    }
+
 }
