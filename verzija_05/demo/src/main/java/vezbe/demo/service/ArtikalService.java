@@ -5,10 +5,12 @@ import org.springframework.stereotype.Service;
 import vezbe.demo.dto.AzuriranjeArtiklaDto;
 import vezbe.demo.dto.AzuriranjeKorisnikDto;
 import vezbe.demo.model.Artikal;
+import vezbe.demo.model.Porudzbina;
 import vezbe.demo.model.PorudzbinaArtikal;
 import vezbe.demo.model.Restoran;
 import vezbe.demo.repository.ArtikalRepository;
 import vezbe.demo.repository.PorudzbinaArtikalRepository;
+import vezbe.demo.repository.PorudzbinaRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -21,6 +23,9 @@ public class ArtikalService {
 
     @Autowired
     private PorudzbinaArtikalRepository porudzbinaArtikalRepository;
+
+    @Autowired
+    private PorudzbinaRepository porudzbinaRepository;
 
     public List<Artikal> NadjiSveArtikleIzDatogRestorana(Restoran restoran)
     {

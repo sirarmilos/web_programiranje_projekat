@@ -42,9 +42,6 @@ public class RestoranService {
 
         for(Restoran restoran : sviRestorani)
         {
-            System.out.println(restoran.getNaziv());
-            System.out.println(restoran.getTip());
-            System.out.println(restoran.getLokacija().getAdresa());
             if(restoran.getNaziv().startsWith(pretragaRestoranaDto.getNaziv()) == true && restoran.getTip().startsWith(pretragaRestoranaDto.getTip()) == true && restoran.getLokacija().getAdresa().startsWith(pretragaRestoranaDto.getAdresa()) == true)
             {
                 trazeniRestorani.add(restoran);

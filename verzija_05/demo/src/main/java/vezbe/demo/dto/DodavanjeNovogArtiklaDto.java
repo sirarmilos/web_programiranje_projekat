@@ -22,6 +22,14 @@ public class DodavanjeNovogArtiklaDto {
         this.tip = tip;
     }
 
+    public DodavanjeNovogArtiklaDto(String naziv, BigDecimal cena, String tip, String opis, String kolicina) {
+        this.naziv = naziv;
+        this.cena = cena;
+        this.tip = tip;
+        this.opis = opis;
+        this.kolicina = kolicina;
+    }
+
     public String getNaziv() {
         return naziv;
     }
