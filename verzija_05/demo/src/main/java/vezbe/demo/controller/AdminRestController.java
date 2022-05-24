@@ -89,6 +89,8 @@ public class AdminRestController {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
+        adminService.SacuvajMenadzera(lokacija, restoran, menadzer);
+
         return new ResponseEntity("Uspesno ste kreirali menadzera, njegov novi restoran, kao i lokaciju restorana.", HttpStatus.OK);
     }
 
@@ -172,6 +174,8 @@ public class AdminRestController {
         {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
+
+        adminService.SacuvajMenadzera(lokacija, restoran, menadzer);
 
         return new ResponseEntity("Uspesno ste kreirali restoran, njegovu lokaciju i menadzera koji ce biti zaduzen za njega.", HttpStatus.OK);
     }

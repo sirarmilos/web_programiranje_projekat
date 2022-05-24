@@ -17,4 +17,6 @@ public interface PorudzbinaArtikalRepository extends JpaRepository<PorudzbinaArt
     PorudzbinaArtikal getPorudzbinaArtikalByArtikalAndPorudzbina(Artikal artikal, Porudzbina porudzbina);
 
     List<PorudzbinaArtikal> getByPorudzbina(Porudzbina p);
+
+    PorudzbinaArtikal findPorudzbinArtikalByArtikalAndPorudzbina(Artikal artikal, Porudzbina porudzbina);
 }

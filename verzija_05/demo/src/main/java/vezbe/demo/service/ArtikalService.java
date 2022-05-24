@@ -118,4 +118,14 @@ public class ArtikalService {
 
         return artikal;
     }
+
+    /*public List<Artikal> NadjiSveArtikleIzDatePorudzbine(Porudzbina porudzbina)
+    {
+        return artikalRepository.findAllByPorudzbina(porudzbina);
+    }*/
+
+    public List<Artikal> NadjiSveArtikle()
+    {
+        return artikalRepository.findAll();
+    }
 }
