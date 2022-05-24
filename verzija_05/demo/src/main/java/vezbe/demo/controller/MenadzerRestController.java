@@ -33,6 +33,9 @@ public class MenadzerRestController {
     @Autowired
     private PorudzbinaService porudzbinaService;
 
+    @Autowired
+    private PorudzbinaArtikalService porudzbinaArtikalService;
+
     @GetMapping("api/menadzer/pregled_restorana")
     ResponseEntity MenadzerPregledRestorana(HttpSession sesija)
     {
@@ -126,7 +129,14 @@ public class MenadzerRestController {
         }
 
         if(restoran.getId() == artikalTrazeni.getRestoran().getId()) {
-            this.artikalService.ObrisiArtikal(artikal);
+
+            List<PorudzbinaArtikal> listaPorudzbinaArtikal = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimArtiklom(artikalTrazeni);
+
+            List<Porudzbina> listaPorudzbina = porudzbinaService.NadjiSvePorudzbineSaOvimId(listaPorudzbinaArtikal);
+
+            porudzbinaService.SmanjiCenuPorudzbinaNakonBrisanjaArtiklaIzRestorana(listaPorudzbina, artikalTrazeni);
+
+            this.artikalService.ObrisiArtikal(artikalTrazeni);
         }
         else
         {

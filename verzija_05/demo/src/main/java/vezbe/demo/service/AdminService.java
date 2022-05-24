@@ -39,22 +39,23 @@ public class AdminService {
     public void KreiranjeMenadzera(Korisnik korisnik) throws Exception
     {
         ProveraMenadzer(korisnik.getKorisnickoIme(), (List<Korisnik>) (List<?>)korisnikRepository.findAll());
-
-        menadzerRepository.save((Menadzer) korisnik);
     }
 
     public void KreiranjeLokacije(Lokacija lokacija) throws Exception
     {
         ProveraLokacija(lokacija.getAdresa(), lokacijaRepository.findAll());
-
-        lokacijaRepository.save(lokacija);
     }
 
     public void KreiranjeRestorana(Restoran restoran) throws Exception
     {
         ProveraRestorana(restoran.getNaziv(), restoranRepository.findAll());
+    }
 
+    public void SacuvajMenadzera(Lokacija lokacija, Restoran restoran, Menadzer menadzer)
+    {
+        lokacijaRepository.save(lokacija);
         restoranRepository.save(restoran);
+        menadzerRepository.save(menadzer);
     }
 
     public void KreiranjeDostavljaca(Korisnik korisnik) throws Exception
