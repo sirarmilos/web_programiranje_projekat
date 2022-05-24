@@ -224,6 +224,10 @@ public class DatabaseConfiguration {
         PorudzbinaArtikal pa6 = new PorudzbinaArtikal(artikal15, porudzbina3, 1);
         PorudzbinaArtikal pa7 = new PorudzbinaArtikal(artikal7, porudzbina4, 1);
         PorudzbinaArtikal pa8 = new PorudzbinaArtikal(artikal8, porudzbina4, 1);
+        PorudzbinaArtikal pa9 = new PorudzbinaArtikal(artikal1, porudzbina5, 3);
+        PorudzbinaArtikal pa10 = new PorudzbinaArtikal(artikal2, porudzbina5, 2);
+
+
 
         porudzbinaArtikalRepository.save(pa1);
         porudzbinaArtikalRepository.save(pa2);
@@ -233,6 +237,8 @@ public class DatabaseConfiguration {
         porudzbinaArtikalRepository.save(pa6);
         porudzbinaArtikalRepository.save(pa7);
         porudzbinaArtikalRepository.save(pa8);
+        porudzbinaArtikalRepository.save(pa9);
+        porudzbinaArtikalRepository.save(pa10);
 
         Komentar komentar1 = new Komentar(kupac1, restoran1, "vrlo lep restoran", Komentar.Ocena.VeomaDobro);
         Komentar komentar2 = new Komentar(kupac4, restoran1, "vrlo lose...", Komentar.Ocena.Lose);
