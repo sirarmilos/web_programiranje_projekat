@@ -147,24 +147,31 @@ public class PorudzbinaRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
 
-        Artikal artikal = artikalService.NadjiArtikal(id);
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
         if(porudzbina == null){
             return ResponseEntity.badRequest().build();
         }
         PorudzbinaArtikal porart = new PorudzbinaArtikal();
+        boolean nasao = false;
         for(PorudzbinaArtikal pa: porudzbina.getPorudzbineArtikli()){
             if(pa.getArtikal().getId() == id){
                 porart = pa;
+                nasao = true;
             }
         }
-        porudzbina.getPorudzbineArtikli().remove(porart);
-        porudzbina.setCena(updateCena(porudzbina));
+        if(nasao){
+            porudzbina.getPorudzbineArtikli().remove(porart);
+            porudzbina.setCena(updateCena(porudzbina));
+            return ResponseEntity.ok().build();
+        }else{
+            return ResponseEntity.badRequest().build();
+        }
+
 
 
         //PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
         //porudzbinaService.obrisiArtikle(porudzbinaArtikal.getId());
-        return ResponseEntity.ok().build();
+
     }
 
     @GetMapping("pregledPorudzbine")
@@ -239,6 +246,55 @@ public class PorudzbinaRestController {
         }
 
         porudzbinaService.sacuvajPorudzbinu(p);
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PutMapping("izmenaStatusaUTransportu/{uuid}")
+    public ResponseEntity promeniStatusUTransportu(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Dostavljac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        String user = sesijaService.getKorisnickoIme(sesija);
+        Dostavljac d = dostavljacService.dobaviDostavljacaPoKorisnickomImenu(user);
+        Porudzbina p = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        if(p.getStatus() == Porudzbina.Status.CekaDostavljaca) {
+            p.setStatus(Porudzbina.Status.UTransportu);
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        p.setDostavljac(d);
+
+        porudzbinaService.sacuvajPorudzbinu(p);
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PutMapping("izmenaStatusaDostavljena/{uuid}")
+    public ResponseEntity promeniStatusDostavljena(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Dostavljac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        String user = sesijaService.getKorisnickoIme(sesija);
+        Dostavljac d = dostavljacService.dobaviDostavljacaPoKorisnickomImenu(user);
+        Porudzbina p = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        if(p.getStatus() == Porudzbina.Status.UTransportu && d.getKorisnickoIme().equals(p.getDostavljac().getKorisnickoIme())) {
+            p.setStatus(Porudzbina.Status.Dostavljena);
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        porudzbinaService.sacuvajPorudzbinu(p);
+
+        p.getKupac().setBrojSakupljenihBodova(p.getKupac().getBrojSakupljenihBodova().add(p.getCena().divide(BigDecimal.valueOf(1000)).multiply(BigDecimal.valueOf(133))));
+        kupacService.sacuvajKupca(p.getKupac());
+
+
         return ResponseEntity.ok().build();
 
     }

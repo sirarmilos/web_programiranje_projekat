@@ -38,14 +38,15 @@ public class Kupac extends Korisnik implements Serializable {
     public Kupac() {
     }
 
-    public Kupac(String korisnickoIme, String lozinka, String ime, String prezime, String pol, LocalDate datumRodjenja, TipKupca tipKupca) {
+    public Kupac(String korisnickoIme, String lozinka, String ime, String prezime, String pol, LocalDate datumRodjenja, BigDecimal brojSakupljenihBodova, TipKupca tipKupca) {
         super(korisnickoIme, lozinka, ime, prezime, pol, datumRodjenja);
-        this.brojSakupljenihBodova = new BigDecimal(0);
+        this.brojSakupljenihBodova = brojSakupljenihBodova;
         this.tipKupca = tipKupca;
     }
 
     public Kupac(String korisnickoIme, String lozinka, String ime, String prezime) {
         super(korisnickoIme, lozinka, ime, prezime);
+        this.brojSakupljenihBodova = new BigDecimal(0);
     }
 
     public Set<Porudzbina> getPorudzbine() {
