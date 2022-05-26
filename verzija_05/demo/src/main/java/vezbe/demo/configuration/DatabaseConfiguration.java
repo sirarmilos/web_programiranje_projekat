@@ -80,9 +80,9 @@ public class DatabaseConfiguration {
         dostavljacRepository.save(dostavljac2);
         dostavljacRepository.save(dostavljac3);
 
-        TipKupca tipKupcaZlatni = new TipKupca(TipKupca.Ime.Zlatni, new BigDecimal(40), new BigDecimal(300));
+        TipKupca tipKupcaZlatni = new TipKupca(TipKupca.Ime.Zlatni, new BigDecimal(40), new BigDecimal(1200));
         TipKupca tipKupcaSrebrni = new TipKupca(TipKupca.Ime.Srebrni, new BigDecimal(30), new BigDecimal(700));
-        TipKupca tipKupcaBronzani = new TipKupca(TipKupca.Ime.Bronzani, new BigDecimal(20), new BigDecimal(1200));
+        TipKupca tipKupcaBronzani = new TipKupca(TipKupca.Ime.Bronzani, new BigDecimal(20), new BigDecimal(300));
 
         tipKupcaRepository.save(tipKupcaZlatni);
         tipKupcaRepository.save(tipKupcaSrebrni);
@@ -90,9 +90,9 @@ public class DatabaseConfiguration {
 
         Kupac kupac1 = new Kupac("bojan61", "lozinkaKupac1", "Bojan", "Ivanovic", "muski", datumRodjenja6, new BigDecimal(1600), tipKupcaZlatni);
         Kupac kupac2 = new Kupac("marijaaa", "lozinkaKupac2", "Marija", "Randjelovic", "zenski", datumRodjenja7, new BigDecimal(1000), tipKupcaSrebrni);
-        Kupac kupac3 = new Kupac("deki1976", "lozinkaKupac3", "Dejan", "Jovic", "muski", datumRodjenja8, new BigDecimal(550), tipKupcaBronzani);
+        Kupac kupac3 = new Kupac("deki1976", "lozinkaKupac3", "Dejan", "Jovic", "muski", datumRodjenja8, new BigDecimal(200), null);
         Kupac kupac4 = new Kupac("ivan9", "lozinkaKupac4", "Ivan", "Gagic", "muski", datumRodjenja9, new BigDecimal(50), null);
-        Kupac kupac5 = new Kupac("mgorana", "lozinkaKupac5", "Gorana", "Matic", "zenski", datumRodjenja10, new BigDecimal(800), tipKupcaSrebrni);
+        Kupac kupac5 = new Kupac("mgorana", "lozinkaKupac5", "Gorana", "Matic", "zenski", datumRodjenja10, new BigDecimal(650), tipKupcaBronzani);
 
         kupacRepository.save(kupac1);
         kupacRepository.save(kupac2);
@@ -198,13 +198,13 @@ public class DatabaseConfiguration {
         c4 = c4.add(pomc7);
         c4 = c4.add(pomc8);
 
-        Porudzbina porudzbina1 = new Porudzbina(restoran1, datumIVremePorudzbine1, c1, kupac1, Porudzbina.Status.UPripremi, null);
+        Porudzbina porudzbina1 = new Porudzbina(restoran1, datumIVremePorudzbine1, c1, kupac3, Porudzbina.Status.UTransportu, dostavljac1);
 
         Porudzbina porudzbina2 = new Porudzbina(restoran1, datumIVremePorudzbine2, c2, kupac4, Porudzbina.Status.UPripremi, null);
 
-        Porudzbina porudzbina3 = new Porudzbina(restoran4, datumIVremePorudzbine3, c3, kupac5, Porudzbina.Status.UPripremi, null);
+        Porudzbina porudzbina3 = new Porudzbina(restoran4, datumIVremePorudzbine3, c3, kupac5, Porudzbina.Status.UTransportu, dostavljac1);
 
-        Porudzbina porudzbina4 = new Porudzbina(restoran2, datumIVremePorudzbine4, c4, kupac2, Porudzbina.Status.CekaDostavljaca, null);
+        Porudzbina porudzbina4 = new Porudzbina(restoran2, datumIVremePorudzbine4, c4, kupac3, Porudzbina.Status.UTransportu, dostavljac1);
 
         Porudzbina porudzbina5 = new Porudzbina(restoran1, datumIVremePorudzbine2, c1, kupac1, Porudzbina.Status.Obrada, null);
 

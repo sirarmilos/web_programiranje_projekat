@@ -49,6 +49,12 @@ public class PorudzbinaRestController {
         return suma;
     }
 
+    public BigDecimal updatePopust(Porudzbina p){
+        BigDecimal cenaSaPopustom = new BigDecimal(0);
+        cenaSaPopustom = (BigDecimal.ONE.subtract(p.getKupac().getTipKupca().getPopust().divide(BigDecimal.valueOf(100)))).multiply(p.getCena());
+        return cenaSaPopustom;
+    }
+
     @GetMapping("dobaviSve")
     public ResponseEntity<List<Porudzbina>> dobaviSveporudzbinePoUlogovanomKupcu(HttpSession sesija)
     {
@@ -116,6 +122,10 @@ public class PorudzbinaRestController {
             //porudzbinaService.sacuvajPorudzbinu(porudzbina);
         }*/
 
+        if(porudzbina.getRestoran().getId() != artikal.getRestoran().getId()){
+            return ResponseEntity.badRequest().build();
+        }
+
 
         boolean izmenio = false;
         Set<PorudzbinaArtikal> porudzbinaArtikali = porudzbina.getPorudzbineArtikli();
@@ -162,12 +172,13 @@ public class PorudzbinaRestController {
         if(nasao){
             porudzbina.getPorudzbineArtikli().remove(porart);
             porudzbina.setCena(updateCena(porudzbina));
+            if(porudzbina.getPorudzbineArtikli().size() == 0){
+                sesija.removeAttribute("porudzbina");
+            }
             return ResponseEntity.ok().build();
         }else{
             return ResponseEntity.badRequest().build();
         }
-
-
 
         //PorudzbinaArtikal porudzbinaArtikal = porudzbinaService.dobaviPorudzbinuArtikal(porudzbina, artikal);
         //porudzbinaService.obrisiArtikle(porudzbinaArtikal.getId());
@@ -188,7 +199,11 @@ public class PorudzbinaRestController {
        List<PorudzbinaArtikal> pa = porudzbina.getPorudzbineArtikli().stream().toList();
        List<ArtikalZaPregledPorudzbineDto> ret = pa.stream().map(porudzbinaArtikal -> new ArtikalZaPregledPorudzbineDto(porudzbinaArtikal)).collect(Collectors.toList());
 
-        return ResponseEntity.ok(new PregledPorudzbineDto(ret, porudzbina.getCena()));
+       if(porudzbina.getKupac().getTipKupca() == null){
+           return ResponseEntity.ok(new PregledPorudzbineDto(ret, porudzbina.getCena(), porudzbina.getCena()));
+       }else{
+           return ResponseEntity.ok(new PregledPorudzbineDto(ret, porudzbina.getCena(), updatePopust(porudzbina)));
+       }
     }
 
     @GetMapping("kreiranjePorudzbine")
@@ -202,8 +217,13 @@ public class PorudzbinaRestController {
             return ResponseEntity.badRequest().build();
         }
 
+        if(porudzbina.getKupac().getTipKupca() != null){
+            porudzbina.setCena(updatePopust(porudzbina));
+        }
+
         porudzbinaService.sacuvajPorudzbinu(porudzbina);
 
+        sesija.removeAttribute("porudzbina");
         return ResponseEntity.ok().build();
 
     }
@@ -292,6 +312,25 @@ public class PorudzbinaRestController {
         porudzbinaService.sacuvajPorudzbinu(p);
 
         p.getKupac().setBrojSakupljenihBodova(p.getKupac().getBrojSakupljenihBodova().add(p.getCena().divide(BigDecimal.valueOf(1000)).multiply(BigDecimal.valueOf(133))));
+
+        TipKupca tipBronzani = kupacService.tipKupca(TipKupca.Ime.Bronzani);
+        TipKupca tipSrebrni = kupacService.tipKupca(TipKupca.Ime.Srebrni);
+        TipKupca tipZlatni = kupacService.tipKupca(TipKupca.Ime.Zlatni);
+        /*
+        System.out.println(p.getKupac().getBrojSakupljenihBodova());
+        System.out.println(tipBronzani.getTrazeniBrojBodova());
+        boolean a = p.getKupac().getBrojSakupljenihBodova().compareTo(tipBronzani.getTrazeniBrojBodova()) > 0;
+        System.out.println(a);
+        */
+        if(p.getKupac().getBrojSakupljenihBodova().compareTo(tipZlatni.getTrazeniBrojBodova()) > 0){
+            p.getKupac().setTipKupca(tipZlatni);
+        }else if(p.getKupac().getBrojSakupljenihBodova().compareTo(tipSrebrni.getTrazeniBrojBodova()) > 0){
+            p.getKupac().setTipKupca(tipSrebrni);
+        }else if(p.getKupac().getBrojSakupljenihBodova().compareTo(tipBronzani.getTrazeniBrojBodova()) > 0){
+            System.out.println(tipZlatni.getTrazeniBrojBodova());
+            p.getKupac().setTipKupca(tipBronzani);
+        }
+
         kupacService.sacuvajKupca(p.getKupac());
 
 

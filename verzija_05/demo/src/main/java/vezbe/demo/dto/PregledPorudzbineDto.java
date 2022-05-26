@@ -22,4 +22,6 @@ public class PregledPorudzbineDto {
 
     private BigDecimal ukupnaCena;
 
+    private BigDecimal cena_sa_popustom;
+
 }
