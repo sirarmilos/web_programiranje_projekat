@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -17,12 +19,14 @@ public class Komentar implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "kupac_korisnickoIme", nullable = false)
+    @JsonIgnore
     private Kupac kupac;
 
     // restoran
 
     @ManyToOne
     @JoinColumn(name = "restoran_id", nullable = false)
+    @JsonIgnore
     private Restoran restoran;
 
     @Column(name = "tekst_komentara")

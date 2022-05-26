@@ -1,5 +1,7 @@
 package vezbe.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -38,11 +40,13 @@ public class Artikal implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "restoran_id")
+    @JsonIgnore
     private Restoran restoran;
 
     // artikal - porudzbinaArtikal - porudzbina
 
-    @OneToMany(mappedBy = "artikal")
+    @OneToMany(mappedBy = "artikal", orphanRemoval = true)
+    @JsonIgnore
     private Set<PorudzbinaArtikal> porudzbineArtikli = new HashSet<>();
 
     public Artikal() {
@@ -53,6 +57,37 @@ public class Artikal implements Serializable {
         this.cena = cena;
         this.tip = tip;
         this.kolicina = kolicina;
+        this.opis = opis;
+        this.restoran = restoran;
+    }
+
+    public Artikal(String naziv, BigDecimal cena, String tip, String kolicina, String opis, Restoran restoran) {
+        this.naziv = naziv;
+        this.cena = cena;
+        if(tip == null)
+        {
+            this.tip = Tip.Pice;
+        }
+        else {
+            if (tip.equals("Jelo") == true) {
+                this.tip = Tip.Jelo;
+            } else {
+                this.tip = Tip.Pice;
+            }
+        }
+
+        if(kolicina == null)
+        {
+            this.kolicina = Kolicina.ml;
+        }
+        else {
+            if (kolicina.equals("g") == true) {
+                this.kolicina = Kolicina.g;
+            } else {
+                this.kolicina = Kolicina.ml;
+            }
+        }
+
         this.opis = opis;
         this.restoran = restoran;
     }

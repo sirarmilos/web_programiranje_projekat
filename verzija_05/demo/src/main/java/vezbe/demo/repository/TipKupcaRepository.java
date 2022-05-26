@@ -7,4 +7,6 @@ import vezbe.demo.model.TipKupca;
 @Repository
 public interface TipKupcaRepository extends JpaRepository<TipKupca, Long> {
 
+    TipKupca findTipKupcaByIme(TipKupca.Ime ime);
+
 }
