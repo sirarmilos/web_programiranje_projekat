@@ -2,6 +2,7 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.AzuriranjeKorisnikDto;
@@ -26,7 +27,11 @@ public class KorisnikRestController {
     @Autowired
     private SesijaService sesijaService;
 
-    @GetMapping("api/korisnik/pregled_podataka")
+    @Autowired
+    public KorisnikRestController(KorisnikService korisnikService, SesijaService sesijaService) {this.korisnikService = korisnikService; this.sesijaService = sesijaService;}
+
+    @GetMapping(value ="api/korisnik/pregled_podataka",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PregledPodataka(HttpSession sesija)
     {
         HashMap<String, String> podaciGreske = new HashMap<>();
@@ -54,7 +59,7 @@ public class KorisnikRestController {
         Korisnik korisnik = null;
 
         try{
-            korisnik = korisnikService.PregledPodataka(sesijaService.getKorisnickoIme(sesija));
+            korisnik = korisnikService.PregledPodataka(sesijaService.getKorisnickoIme(sesija)); //("bojan61");
         } catch (AccountNotFoundException e)
         {
             podaciGreske.put("Korisnicko ime", e.getMessage());

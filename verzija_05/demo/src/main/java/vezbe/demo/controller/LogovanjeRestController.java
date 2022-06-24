@@ -82,7 +82,9 @@ public class LogovanjeRestController {
             ulogaZaSlanje = "menadzer";
         }
 
-        LogovanjeDtoSlanje logovanjeDtoSlanje = new LogovanjeDtoSlanje(korisnik, ulogaZaSlanje); //korisnik.getClass().getName());
+        String sesijaId = (String)sesija.getAttribute("jsessionid");
+
+        LogovanjeDtoSlanje logovanjeDtoSlanje = new LogovanjeDtoSlanje(korisnik, ulogaZaSlanje, sesija); //korisnik.getClass().getName());
 
         return new ResponseEntity(logovanjeDtoSlanje, HttpStatus.OK);
         // return new ResponseEntity(korisnik, HttpStatus.OK);
