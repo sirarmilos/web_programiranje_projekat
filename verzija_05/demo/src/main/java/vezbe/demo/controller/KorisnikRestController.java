@@ -73,7 +73,9 @@ public class KorisnikRestController {
         return new ResponseEntity(korisnik, HttpStatus.OK);
     }
 
-    @PutMapping("api/korisnik/azuriranje_podataka")
+    @PutMapping(value = "api/korisnik/azuriranje_podataka",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity AzuriranjePodataka(@RequestBody AzuriranjeKorisnikDto azuriranjeKorisnikDto, HttpSession sesija)
     {
         Boolean povratna;

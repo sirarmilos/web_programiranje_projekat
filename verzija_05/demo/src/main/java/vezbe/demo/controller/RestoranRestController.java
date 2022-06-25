@@ -2,8 +2,10 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vezbe.demo.dto.ArtikalZaPretragaArtikalPoIdDto;
 import vezbe.demo.dto.PretragaRestoranaDto;
 import vezbe.demo.dto.PrikaziIzabraniRestoranDto;
 import vezbe.demo.model.Artikal;
@@ -35,7 +37,18 @@ public class RestoranRestController {
     @Autowired
     private KomentarService komentarService;
 
-    @GetMapping("api/restoran/prikaz_restorana")
+    @GetMapping(value="api/pretraga_artikla_po_id/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity PretragaArtikalaPoId(@PathVariable ("id") Long id)
+    {
+        Artikal artikal = artikalService.NadjiArtikal(id);
+
+        ArtikalZaPretragaArtikalPoIdDto ar = new ArtikalZaPretragaArtikalPoIdDto(artikal.getNaziv(), artikal.getCena(), artikal.getOpis());
+        return new ResponseEntity(ar, HttpStatus.OK);
+    }
+
+    @GetMapping(value ="api/restoran/prikaz_restorana",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PregledSvihRestorana(HttpSession sesija)
     {
         Boolean povratna;
@@ -63,7 +76,8 @@ public class RestoranRestController {
         return new ResponseEntity(listaSvihRestorana, HttpStatus.OK);
     }
 
-    @GetMapping("api/restoran/pretraga")
+    @GetMapping(value = "api/restoran/pretraga",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PretragaRestorana(@RequestBody PretragaRestoranaDto pretragaRestoranaDto, HttpSession sesija)
     {
         Boolean povratna;
@@ -103,7 +117,8 @@ public class RestoranRestController {
         return new ResponseEntity(trazeniRestorani, HttpStatus.OK);
     }
 
-    @GetMapping("api/korisnik/izbor_restorana/{id}")
+    @GetMapping(value="api/korisnik/izbor_restorana/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PrikazIzabranogRestorana(@PathVariable Long id, HttpSession sesija)
     {
         Boolean povratna;
