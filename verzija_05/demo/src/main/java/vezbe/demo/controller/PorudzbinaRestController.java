@@ -3,6 +3,7 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.ArtikalZaPregledPorudzbineDto;
@@ -55,7 +56,8 @@ public class PorudzbinaRestController {
         return cenaSaPopustom;
     }
 
-    @GetMapping("dobaviSve")
+    @GetMapping(value="dobaviSve",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Porudzbina>> dobaviSveporudzbinePoUlogovanomKupcu(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
@@ -226,6 +228,18 @@ public class PorudzbinaRestController {
         sesija.removeAttribute("porudzbina");
         return ResponseEntity.ok().build();
 
+    }
+
+    @GetMapping(value="dobaviPorudzbinu/{uuid}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Porudzbina> dobaviJednuporudzbinuPoUlogovanomKupcu(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Porudzbina porudzbinaZaVracanje = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        return ResponseEntity.ok(porudzbinaZaVracanje);
     }
 
     @PutMapping("izmenaStatusaUPripremi/{uuid}")

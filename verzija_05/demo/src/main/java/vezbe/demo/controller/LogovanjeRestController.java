@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,14 @@ public class LogovanjeRestController {
 
     @Autowired
     public LogovanjeRestController(LogovanjeService logovanjeService) {this.logovanjeService = logovanjeService;}
+
+    @PostMapping(value="api/odlogovanje",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity Odlogovanje(HttpSession session){
+        session.invalidate();
+        return new ResponseEntity("Successfully logged out", HttpStatus.OK);
+    }
 
     @PostMapping(value ="api/logovanje",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
