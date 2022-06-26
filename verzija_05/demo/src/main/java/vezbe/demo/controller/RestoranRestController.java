@@ -76,7 +76,8 @@ public class RestoranRestController {
         return new ResponseEntity(listaSvihRestorana, HttpStatus.OK);
     }
 
-    @GetMapping(value = "api/restoran/pretraga",
+    @PostMapping(value = "api/restoran/pretraga",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PretragaRestorana(@RequestBody PretragaRestoranaDto pretragaRestoranaDto, HttpSession sesija)
     {
