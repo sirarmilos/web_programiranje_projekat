@@ -9,4 +9,5 @@ import vezbe.demo.model.Restoran;
 public interface MenadzerRepository extends JpaRepository<Menadzer, String> {
 
     Menadzer findByKorisnickoIme(String korisnickoIme);
+    void deleteMenadzerByRestoranId(Long id);
 }
