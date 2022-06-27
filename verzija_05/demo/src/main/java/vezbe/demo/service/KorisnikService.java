@@ -3,12 +3,16 @@ package vezbe.demo.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vezbe.demo.dto.AzuriranjeKorisnikDto;
+import vezbe.demo.dto.PretragaKorisnikaDto;
+import vezbe.demo.dto.PretragaRestoranaDto;
 import vezbe.demo.dto.RegistracijaDto;
 import vezbe.demo.model.Korisnik;
 import vezbe.demo.model.Kupac;
+import vezbe.demo.model.Restoran;
 import vezbe.demo.repository.KorisnikRepository;
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -62,5 +66,29 @@ public class KorisnikService {
 
         return null;
     }
+
+    public List<Korisnik> PretragaKorisnika(PretragaKorisnikaDto pretragaKorisnikaDto) throws Exception
+    {
+        List<Korisnik> trazeniKorisnici = new ArrayList<>();
+
+        List<Korisnik> sviKorisnici = korisnikRepository.findAll();
+
+        for(Korisnik korisnik : sviKorisnici)
+        {
+            if(korisnik.getIme().startsWith(pretragaKorisnikaDto.getIme()) == true && korisnik.getPrezime().startsWith(pretragaKorisnikaDto.getPrezime()) == true && korisnik.getKorisnickoIme().startsWith(pretragaKorisnikaDto.getKorisnickoIme()) == true)
+            {
+                trazeniKorisnici.add(korisnik);
+            }
+        }
+
+        if(trazeniKorisnici.isEmpty() == true)
+        {
+            throw new Exception("Ne postoji trazeni korisnik.");
+        }
+
+        return trazeniKorisnici;
+    }
+
+    public List<Korisnik> UzmiSveKorisnike() { return korisnikRepository.findAll(); }
 
 }
