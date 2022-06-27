@@ -11,6 +11,7 @@ import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,6 +33,9 @@ public class AdminRestController {
     @Autowired
     private LokacijaService lokacijaService;
 
+    @Autowired
+    private KorisnikService korisnikService;
+
     @GetMapping(value="api/admin/pregled_svih_korisnika",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PregledSvihPodatakaOdStraneAdmina(HttpSession sesija)
@@ -43,9 +47,33 @@ public class AdminRestController {
             return new ResponseEntity("Ne mozete da vidite podatke o drugim korisnicima, niste admin.", HttpStatus.BAD_REQUEST);
         }
 
-        List<Korisnik> listaKorisnika = adminService.PregledSvihPodatakaOdStraneAdmina();
+        List<Korisnik> listaKorisnika = korisnikService.UzmiSveKorisnike();//adminService.PregledSvihPodatakaOdStraneAdmina();
 
-        return new ResponseEntity(listaKorisnika, HttpStatus.OK);
+        List<PregledSvihKorisnikaDto> listaPregledSvihKorisnikaDto = new ArrayList<>();
+
+        try {
+            for (Korisnik korisnik : listaKorisnika) {
+                String korisnickaUloga = "proba";
+
+                if (korisnik.getClass().getName().equals("vezbe.demo.model.Kupac")) {
+                    korisnickaUloga = "kupac";
+                } else if (korisnik.getClass().getName().equals("vezbe.demo.model.Admin")) {
+                    korisnickaUloga = "admin";
+                } else if (korisnik.getClass().getName().equals("vezbe.demo.model.Dostavljac")) {
+                    korisnickaUloga = "dostavljac";
+                } else if (korisnik.getClass().getName().equals("vezbe.demo.model.Menadzer")) {
+                    korisnickaUloga = "menadzer";
+                }
+
+                PregledSvihKorisnikaDto pregledSvihKorisnikaDto = new PregledSvihKorisnikaDto(korisnik.getKorisnickoIme(), korisnik.getLozinka(), korisnik.getIme(), korisnik.getPrezime(), korisnik.getPol(), korisnik.getDatumRodjenja(), korisnickaUloga);
+
+                listaPregledSvihKorisnikaDto.add(pregledSvihKorisnikaDto);
+            }
+        } catch (Exception e){
+            return new ResponseEntity("Korisnici" + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(listaPregledSvihKorisnikaDto, HttpStatus.OK);
     }
 
     @PostMapping("api/admin/kreiraj_menadzera")
@@ -205,6 +233,64 @@ public class AdminRestController {
         return new ResponseEntity("Obrisano", HttpStatus.OK);
         // ides obrnuto, prvo brises menadzera, pa restoran, pa lokaciju
     }
+
+    @PostMapping(value="api/admin/pretraga_korisnika",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity PretragaKorisnika(@RequestBody PretragaKorisnikaDto pretragaKorisnikaDto, HttpSession sesija)
+    {
+        Boolean povratna;
+        povratna = sesijaService.validacijaUloge(sesija, "Admin");
+
+        if(povratna == false)
+        {
+            return new ResponseEntity("Ne mozete da vidite podatke o korisnicima, zato sto niste admin.", HttpStatus.BAD_REQUEST);
+        }
+
+        HashMap<String, String> podaciGreske = new HashMap<>();
+
+        List<Korisnik> trazeniKorisnici = null;
+
+        try{
+            trazeniKorisnici = korisnikService.PretragaKorisnika(pretragaKorisnikaDto);
+        } catch (Exception e){
+            podaciGreske.put("Korisnici", e.getMessage());
+        }
+
+        if(trazeniKorisnici == null)
+        {
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
+
+        List<PregledSvihKorisnikaDto> listaPregledSvihKorisnikaDto = new ArrayList<>();
+
+        try {
+            for (Korisnik korisnik : trazeniKorisnici) {
+                String korisnickaUloga = "proba";
+
+                if (korisnik.getClass().getName().equals("vezbe.demo.model.Kupac")) {
+                    korisnickaUloga = "kupac";
+                } else if (korisnik.getClass().getName().equals("vezbe.demo.model.Admin")) {
+                    korisnickaUloga = "admin";
+                } else if (korisnik.getClass().getName().equals("vezbe.demo.model.Dostavljac")) {
+                    korisnickaUloga = "dostavljac";
+                } else if (korisnik.getClass().getName().equals("vezbe.demo.model.Menadzer")) {
+                    korisnickaUloga = "menadzer";
+                }
+
+                PregledSvihKorisnikaDto pregledSvihKorisnikaDto = new PregledSvihKorisnikaDto(korisnik.getKorisnickoIme(), korisnik.getLozinka(), korisnik.getIme(), korisnik.getPrezime(), korisnik.getPol(), korisnik.getDatumRodjenja(), korisnickaUloga);
+
+                listaPregledSvihKorisnikaDto.add(pregledSvihKorisnikaDto);
+            }
+        } catch (Exception e){
+            return new ResponseEntity("Korisnici" + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(listaPregledSvihKorisnikaDto, HttpStatus.OK);
+    }
+
+
+
 
     private HashMap<String, String> ValidacijaKreiranjeMenadzera(KreiranjeTriDto kreiranjeMenadzeraDto)
     {
