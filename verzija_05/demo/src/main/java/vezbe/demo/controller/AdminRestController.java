@@ -2,15 +2,12 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.*;
 import vezbe.demo.model.*;
-import vezbe.demo.service.AdminService;
-import vezbe.demo.service.SesijaService;
+import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
@@ -26,7 +23,17 @@ public class AdminRestController {
     @Autowired
     private SesijaService sesijaService;
 
-    @GetMapping("api/admin/pregled_svih_korisnika")
+    @Autowired
+    private RestoranService restoranService;
+
+    @Autowired
+    private MenadzerService menadzerService;
+
+    @Autowired
+    private LokacijaService lokacijaService;
+
+    @GetMapping(value="api/admin/pregled_svih_korisnika",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PregledSvihPodatakaOdStraneAdmina(HttpSession sesija)
     {
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Admin");
@@ -94,7 +101,9 @@ public class AdminRestController {
         return new ResponseEntity("Uspesno ste kreirali menadzera, njegov novi restoran, kao i lokaciju restorana.", HttpStatus.OK);
     }
 
-    @PostMapping("api/admin/kreiraj_dostavljaca")
+    @PostMapping(value="api/admin/kreiraj_dostavljaca",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity KreiranjeDostavljaca(@RequestBody KreiranjeDostavljacaDto kreiranjeDostavljacaDto, HttpSession sesija)
     {
         HashMap<String, String> podaciGreske = ValidacijaDostavljac(kreiranjeDostavljacaDto);
@@ -127,7 +136,9 @@ public class AdminRestController {
         return new ResponseEntity("Uspesno ste kreirali dostavljaca.", HttpStatus.OK);
     }
 
-    @PostMapping("api/admin/kreiraj_restoran")
+    @PostMapping(value="api/admin/kreiraj_restoran",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity KreiranjeRestoran(@RequestBody KreiranjeTriDto kreiranjeTriDto, HttpSession sesija)
     {
         HashMap<String, String> podaciGreske = ValidacijaKreiranjeMenadzera(kreiranjeTriDto);
@@ -178,6 +189,21 @@ public class AdminRestController {
         adminService.SacuvajMenadzera(lokacija, restoran, menadzer);
 
         return new ResponseEntity("Uspesno ste kreirali restoran, njegovu lokaciju i menadzera koji ce biti zaduzen za njega.", HttpStatus.OK);
+    }
+
+    @DeleteMapping(value="api/admin/obrisi_restoran/{id}")
+    public ResponseEntity ObrisiRestoran(@PathVariable("id") Long id)
+    {
+        Restoran restoran = restoranService.NadjiRestoranPoId(id);
+
+        List<Menadzer> listaSvihMenadzera = menadzerService.SviMenadzeri();
+
+        menadzerService.ObrisiMenadzeraSaIdDatogRestorana(id);
+        restoranService.ObrisiRestoranSaId(id);
+        lokacijaService.ObrisiLokacijuPoId(restoran.getLokacija().getId());
+
+        return new ResponseEntity("Obrisano", HttpStatus.OK);
+        // ides obrnuto, prvo brises menadzera, pa restoran, pa lokaciju
     }
 
     private HashMap<String, String> ValidacijaKreiranjeMenadzera(KreiranjeTriDto kreiranjeMenadzeraDto)
