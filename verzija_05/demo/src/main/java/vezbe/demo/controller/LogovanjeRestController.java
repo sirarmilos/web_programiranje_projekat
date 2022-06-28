@@ -93,10 +93,11 @@ public class LogovanjeRestController {
 
         String sesijaId = (String)sesija.getAttribute("jsessionid");
 
-        LogovanjeDtoSlanje logovanjeDtoSlanje = new LogovanjeDtoSlanje(korisnik, ulogaZaSlanje, sesija); //korisnik.getClass().getName());
+        //LogovanjeDtoSlanje logovanjeDtoSlanje = new LogovanjeDtoSlanje(korisnik, ulogaZaSlanje, sesija);
+
+        LogovanjeDtoSlanje logovanjeDtoSlanje = new LogovanjeDtoSlanje(korisnik, ulogaZaSlanje);
 
         return new ResponseEntity(logovanjeDtoSlanje, HttpStatus.OK);
-        // return new ResponseEntity(korisnik, HttpStatus.OK);
     }
 
     private HashMap<String, String> ValidacijaLogovanja(LogovanjeDto logovanjeDto)

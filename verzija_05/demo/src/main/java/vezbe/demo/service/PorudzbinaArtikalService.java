@@ -10,6 +10,7 @@ import vezbe.demo.repository.PorudzbinaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PorudzbinaArtikalService {
@@ -41,6 +42,16 @@ public class PorudzbinaArtikalService {
         PorudzbinaArtikal pa = porudzbinaArtikalRepository.findPorudzbinArtikalByArtikalAndPorudzbina(artikal, porudzbina);
 
         return  pa.getKolicina();
+    }
+
+    public List<PorudzbinaArtikal> NadjiSvePorudzbinaArtikalSaOvimId(UUID id)
+    {
+        return porudzbinaArtikalRepository.findAllByPorudzbinaId(id);
+    }
+
+    public void Obrisi(PorudzbinaArtikal pa)
+    {
+        porudzbinaArtikalRepository.delete(pa);
     }
 
 }
