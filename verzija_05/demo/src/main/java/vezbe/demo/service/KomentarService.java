@@ -91,4 +91,9 @@ public class KomentarService {
         return komentari;
     }
 
+    public void SacuvajKomentar(Komentar komentar)
+    {
+        komentarRepository.save(komentar);
+    }
+
 }
