@@ -98,7 +98,9 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok(porudzbine);
     }
 
-    @PostMapping("dodajArtikal")
+    @PostMapping(value="dodajArtikal",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Porudzbina> dodajArtikal( @RequestBody PorudzbinaArtikalDto dto, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
@@ -110,8 +112,10 @@ public class PorudzbinaRestController {
 
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
         //UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
+        System.out.println(dto.getKolicina());
+        System.out.println(dto.getId());
         if(dto.getKolicina() < 1)
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
 
         if(porudzbina == null){
             porudzbina = new Porudzbina(artikal.getRestoran(), LocalDateTime.now(), artikal.getCena().multiply(BigDecimal.valueOf(dto.getKolicina())), kupac, Porudzbina.Status.Obrada, null);
