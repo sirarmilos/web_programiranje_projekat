@@ -50,6 +50,8 @@ public class PorudzbinaService {
         return porudzbinaRepository.getById(id);
     }
 
+    public Porudzbina nadjiPorudzbinuPoId(UUID id) { return porudzbinaRepository.findPorudzbinaById(id);}
+
     public void sacuvajPorudzbinu(Porudzbina porudzbina){
         porudzbinaRepository.save(porudzbina);
     }

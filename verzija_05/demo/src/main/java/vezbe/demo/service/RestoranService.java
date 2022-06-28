@@ -69,6 +69,17 @@ public class RestoranService {
         return null;
     }
 
+    public Restoran DobaviRestoranPoId(Long id)
+    {
+        return restoranRepository.findRestoranById(id);
+    }
+
+   /* public Long DobaviRestoranIDPoUUID(UUID id)
+    {
+        Restoran restoran = restoranRepository.findRestoranByUUID(id);
+        return  restoran.getId();
+    }*/
+
     @Transactional
     public void ObrisiRestoranSaId(Long id)
     {
