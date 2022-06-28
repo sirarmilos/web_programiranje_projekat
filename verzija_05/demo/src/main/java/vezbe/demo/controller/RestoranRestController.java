@@ -7,18 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.ArtikalZaPretragaArtikalPoIdDto;
 import vezbe.demo.dto.PretragaRestoranaDto;
+import vezbe.demo.dto.PrikazRestoranaDostavljacDto;
 import vezbe.demo.dto.PrikaziIzabraniRestoranDto;
 import vezbe.demo.model.Artikal;
 import vezbe.demo.model.Komentar;
 import vezbe.demo.model.Lokacija;
 import vezbe.demo.model.Restoran;
-import vezbe.demo.service.ArtikalService;
-import vezbe.demo.service.KomentarService;
-import vezbe.demo.service.RestoranService;
-import vezbe.demo.service.SesijaService;
+import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,6 +36,9 @@ public class RestoranRestController {
     @Autowired
     private KomentarService komentarService;
 
+    @Autowired
+    private LokacijaService lokacijaService;
+
     @GetMapping(value="api/pretraga_artikla_po_id/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PretragaArtikalaPoId(@PathVariable ("id") Long id)
@@ -45,6 +47,76 @@ public class RestoranRestController {
 
         ArtikalZaPretragaArtikalPoIdDto ar = new ArtikalZaPretragaArtikalPoIdDto(artikal.getNaziv(), artikal.getCena(), artikal.getOpis());
         return new ResponseEntity(ar, HttpStatus.OK);
+    }
+
+    @GetMapping(value="api/dostavljac/prikaz_restorana",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity DostavljacPregledRestorana(HttpSession sesija)
+    {
+
+        Boolean povratna;
+        povratna = sesijaService.validacijaUloge(sesija, "Dostavljac");
+
+        if(povratna == false)
+        {
+            return new ResponseEntity("Ne mozete da vidite ove podatke o restoranima, zato sto niste dostavljac.", HttpStatus.BAD_REQUEST);
+        }
+
+
+        List<Restoran> listaSvihRestorana = restoranService.PregledSvihRestorana();
+
+        List<PrikazRestoranaDostavljacDto> lista = new ArrayList<>();
+
+        for(Restoran restoran : listaSvihRestorana)
+        {
+            Lokacija lokacija = restoran.getLokacija();//lokacijaService.NadjiLokacijuPoId(restoran.getLokacija().getId());
+            lista.add(new PrikazRestoranaDostavljacDto(restoran.getNaziv(), restoran.getTip(), lokacija.getAdresa(), lokacija.getGeografskaSirina(), lokacija.getGeografskaDuzina()));
+        }
+
+        return new ResponseEntity(lista, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "api/restoran/dostavljac_pretraga",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity PretragaRestoranaZaDostavljaca(@RequestBody PretragaRestoranaDto pretragaRestoranaDto, HttpSession sesija)
+    {
+        Boolean povratna;
+        povratna = sesijaService.validacijaUloge(sesija, "Dostavljac");
+
+        if(povratna == false)
+        {
+            return new ResponseEntity("Ne mozete da vidite ove podatke o restoranima, zato sto niste dostavljac.", HttpStatus.BAD_REQUEST);
+        }
+
+        HashMap<String, String> podaciGreske = new HashMap<>();
+
+        List<Restoran> listaSvihRestorana = null;
+
+        try{
+            listaSvihRestorana = restoranService.PretragaRestorana(pretragaRestoranaDto);//restoranService.PregledSvihRestorana();
+        } catch (Exception e){
+            podaciGreske.put("Restorani", e.getMessage());
+        }
+
+        if(listaSvihRestorana == null)
+        {
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
+
+        List<PrikazRestoranaDostavljacDto> lista = new ArrayList<>();
+
+        try{
+            for(Restoran restoran : listaSvihRestorana)
+            {
+                Lokacija lokacija = restoran.getLokacija();//lokacijaService.NadjiLokacijuPoId(restoran.getLokacija().getId());
+                lista.add(new PrikazRestoranaDostavljacDto(restoran.getNaziv(), restoran.getTip(), lokacija.getAdresa(), lokacija.getGeografskaSirina(), lokacija.getGeografskaDuzina()));
+            }
+        }catch (Exception e){
+            return new ResponseEntity("Restorani" + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(lista, HttpStatus.OK);
     }
 
     @GetMapping(value ="api/restoran/prikaz_restorana",
@@ -73,7 +145,15 @@ public class RestoranRestController {
 
         List<Restoran> listaSvihRestorana = restoranService.PregledSvihRestorana();
 
-        return new ResponseEntity(listaSvihRestorana, HttpStatus.OK);
+        List<PretragaRestoranaDto> lista = new ArrayList<>();
+
+        for(Restoran restoran : listaSvihRestorana)
+        {
+            Lokacija lokacija = restoran.getLokacija();//lokacijaService.NadjiLokacijuPoId(restoran.getLokacija().getId());
+            lista.add(new PretragaRestoranaDto(restoran.getId(), restoran.getNaziv(), restoran.getTip(), lokacija.getAdresa()));
+        }
+
+        return new ResponseEntity(lista, HttpStatus.OK);
     }
 
     @PostMapping(value = "api/restoran/pretraga",
@@ -115,7 +195,20 @@ public class RestoranRestController {
         {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(trazeniRestorani, HttpStatus.OK);
+
+        List<PretragaRestoranaDto> lista = new ArrayList<>();
+
+        try{
+            for(Restoran restoran : trazeniRestorani)
+            {
+                Lokacija lokacija = restoran.getLokacija();//lokacijaService.NadjiLokacijuPoId(restoran.getLokacija().getId());
+                lista.add(new PretragaRestoranaDto(restoran.getId(), restoran.getNaziv(), restoran.getTip(), lokacija.getAdresa()));
+            }
+        }catch (Exception e){
+            return new ResponseEntity("Restorani" + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(lista, HttpStatus.OK);
     }
 
     @GetMapping(value="api/korisnik/izbor_restorana/{id}",

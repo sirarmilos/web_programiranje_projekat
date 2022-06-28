@@ -38,6 +38,20 @@ public class MenadzerRestController {
     @Autowired
     private PorudzbinaArtikalService porudzbinaArtikalService;
 
+    @GetMapping(value="api/menadzer/dobavi_id_restorana",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity DobaviIdRestoranaZaMenadzer(HttpSession sesija)
+    {
+        String korIme = (String) sesija.getAttribute("korisnickoIme");
+
+        Menadzer menadzer = menadzerService.NadjiMenadzerSaKorisnickimImenom(korIme);
+
+        Long id = menadzer.getRestoran().getId();
+        // nadji id restorana preko sesije, i onda to prosledis preko localstoragea i ucitas u onoj stranici Moj Restoran
+
+        return new ResponseEntity(id, HttpStatus.OK);
+    }
+
     @GetMapping(value = "api/menadzer/pregled_pojedinacnog_artikla/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity InformacijeOPojedinacnomArtiklu(@PathVariable ("id") Long id)

@@ -9,4 +9,6 @@ public interface LokacijaRepository extends JpaRepository<Lokacija, Long> {
 
     void deleteLokacijaById(Long id);
 
+    public Lokacija findLokacijaById(Long id);
+
 }

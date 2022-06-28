@@ -14,6 +14,11 @@ public class LogovanjeDtoSlanje {
     public LogovanjeDtoSlanje() {
     }
 
+    public LogovanjeDtoSlanje(Korisnik korisnik, String uloga) {
+        this.korisnik = korisnik;
+        this.uloga = uloga;
+    }
+
     public LogovanjeDtoSlanje(Korisnik korisnik, String uloga, HttpSession sesija) {
         this.korisnik = korisnik;
         this.uloga = uloga;
