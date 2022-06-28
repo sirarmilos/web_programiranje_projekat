@@ -40,5 +40,9 @@ public class MenadzerService {
         menadzerRepository.deleteMenadzerByRestoranId(id);
     }
 
+    public Menadzer NadjiMenadzerSaKorisnickimImenom(String korIme)
+    {
+        return menadzerRepository.findByKorisnickoIme(korIme);
+    }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.ArtikalZaPregledPorudzbineDto;
+import vezbe.demo.dto.IspisPojedinacnePorudzbineDto;
 import vezbe.demo.dto.PorudzbinaArtikalDto;
 import vezbe.demo.dto.PregledPorudzbineDto;
 import vezbe.demo.model.*;
@@ -39,6 +40,9 @@ public class PorudzbinaRestController {
 
     @Autowired
     private ArtikalService artikalService;
+
+    @Autowired
+    private PorudzbinaArtikalService porudzbinaArtikalService;
 
     public BigDecimal updateCena(Porudzbina p){
         BigDecimal suma = BigDecimal.ZERO;
@@ -241,6 +245,35 @@ public class PorudzbinaRestController {
 
         return ResponseEntity.ok(porudzbinaZaVracanje);
     }
+
+
+    @GetMapping(value="dobavi_porudzbinu/{uuid}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity dobaviInformacijeOJednojPorudzbiniKupca(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+        {
+            return new ResponseEntity("Niste Kupac, ne mozete da vidite ovu informaciju", HttpStatus.BAD_REQUEST);
+        }
+
+        Porudzbina porudzbina = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        List<PorudzbinaArtikal> sve = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimId(id);
+
+        List<IspisPojedinacnePorudzbineDto> lista = new ArrayList<>();
+
+        for(PorudzbinaArtikal pa : sve)
+        {
+            Artikal artikal = pa.getArtikal();
+            Porudzbina porudzbina1 = pa.getPorudzbina();
+            lista.add(new IspisPojedinacnePorudzbineDto(artikal.getNaziv(), artikal.getCena(), artikal.getOpis(), pa.getKolicina(), porudzbina1.getDatumVreme(), porudzbina1.getCena(), porudzbina1.getStatus()));
+        }
+
+        return new ResponseEntity(lista, HttpStatus.OK);
+    }
+
+
+
 
     @PutMapping("izmenaStatusaUPripremi/{uuid}")
     public ResponseEntity promeniStatusUPripremi(@PathVariable("uuid") UUID id, HttpSession sesija)
