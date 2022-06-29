@@ -2,6 +2,7 @@ package vezbe.demo.dto;
 
 public class PretragaRestoranaDto {
 
+    private Long id;
     private String naziv;
     private String tip;
     private String adresa;
@@ -9,10 +10,19 @@ public class PretragaRestoranaDto {
     public PretragaRestoranaDto() {
     }
 
-    public PretragaRestoranaDto(String naziv, String tip, String adresa) {
+    public PretragaRestoranaDto(Long id, String naziv, String tip, String adresa) {
+        this.id = id;
         this.naziv = naziv;
         this.tip = tip;
         this.adresa = adresa;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNaziv() {

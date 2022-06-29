@@ -19,4 +19,6 @@ public interface PorudzbinaRepository extends JpaRepository<Porudzbina, UUID> {
     List<Porudzbina> findPorudzbinaByDostavljac(String korisnickoImeDostavljaca);
 
     List<Porudzbina> findPorudzbinaByKupac(Kupac kupac);
+
+    Porudzbina findPorudzbinaById(UUID id);
 }

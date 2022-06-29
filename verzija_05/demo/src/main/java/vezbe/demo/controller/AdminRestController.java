@@ -36,6 +36,12 @@ public class AdminRestController {
     @Autowired
     private KorisnikService korisnikService;
 
+    @Autowired
+    private ArtikalService artikalService;
+
+    @Autowired
+    private PorudzbinaArtikalService porudzbinaArtikalService;
+
     @GetMapping(value="api/admin/pregled_svih_korisnika",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity PregledSvihPodatakaOdStraneAdmina(HttpSession sesija)
@@ -226,9 +232,43 @@ public class AdminRestController {
 
         List<Menadzer> listaSvihMenadzera = menadzerService.SviMenadzeri();
 
+        System.out.println("a");
+
+        List<Artikal> listaArtikala = artikalService.NadjiSveArtikleIzDatogRestorana(restoran);
+
+        System.out.println("b");
+
+        for(Artikal artikal : listaArtikala)
+        {
+            System.out.println("c");
+            List<PorudzbinaArtikal> listaPA = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimArtiklom(artikal);
+            for(PorudzbinaArtikal pa : listaPA)
+            {
+                System.out.println("d");
+                porudzbinaArtikalService.Obrisi(pa);
+            }
+            //artikalService.ObrisiArtikal(artikal);
+        }
+        System.out.println("e");
         menadzerService.ObrisiMenadzeraSaIdDatogRestorana(id);
+
+        System.out.println("f");
+
+        Long id_lokacije = restoran.getLokacija().getId();
+
         restoranService.ObrisiRestoranSaId(id);
-        lokacijaService.ObrisiLokacijuPoId(restoran.getLokacija().getId());
+
+        System.out.println("g");
+
+        lokacijaService.ObrisiLokacijuPoId(id_lokacije);
+
+        System.out.println("h");
+
+        for(Artikal artikal : listaArtikala)
+        {
+            System.out.println("m");
+            artikalService.ObrisiArtikal(artikal);
+        }
 
         return new ResponseEntity("Obrisano", HttpStatus.OK);
         // ides obrnuto, prvo brises menadzera, pa restoran, pa lokaciju
