@@ -284,7 +284,9 @@ public class PorudzbinaRestController {
 
 
 
-    @PutMapping("izmenaStatusaUPripremi/{uuid}")
+    @PutMapping(value="izmenaStatusaUPripremi/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusUPripremi(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
@@ -305,7 +307,9 @@ public class PorudzbinaRestController {
 
     }
 
-    @PutMapping("izmenaStatusaCekaDostavljaca/{uuid}")
+    @PutMapping(value = "izmenaStatusaCekaDostavljaca/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusCekaDostavljaca(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
@@ -326,7 +330,9 @@ public class PorudzbinaRestController {
 
     }
 
-    @PutMapping("izmenaStatusaUTransportu/{uuid}")
+    @PutMapping(value="izmenaStatusaUTransportu/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusUTransportu(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Dostavljac"))
@@ -349,7 +355,9 @@ public class PorudzbinaRestController {
 
     }
 
-    @PutMapping("izmenaStatusaDostavljena/{uuid}")
+    @PutMapping(value="izmenaStatusaDostavljena/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusDostavljena(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Dostavljac"))

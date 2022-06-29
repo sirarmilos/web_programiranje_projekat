@@ -34,10 +34,17 @@ public class MenadzerService {
         return menadzerRepository.findAll();
     }
 
-    @Transactional
+    /*@Transactional
     public void ObrisiMenadzeraSaIdDatogRestorana(Long id)
     {
         menadzerRepository.deleteMenadzerByRestoranId(id);
+    }*/
+
+    @Transactional
+    public void ObrisiMenadzera(Menadzer menadzer)
+    {
+        System.out.println(menadzer.getKorisnickoIme());
+        menadzerRepository.deleteByKorisnickoIme(menadzer.getKorisnickoIme());
     }
 
     public Menadzer NadjiMenadzerSaKorisnickimImenom(String korIme)

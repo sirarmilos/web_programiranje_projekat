@@ -2,6 +2,7 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.AzuriranjeArtiklaDto;
@@ -36,7 +37,51 @@ public class MenadzerRestController {
     @Autowired
     private PorudzbinaArtikalService porudzbinaArtikalService;
 
-    @GetMapping("api/menadzer/pregled_restorana")
+
+    @GetMapping(value="api/menadzer/dobavi_id_restorana",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity DobaviIdRestoranaZaMenadzer(HttpSession sesija)
+    {
+        String korIme = (String) sesija.getAttribute("korisnickoIme");
+
+        Menadzer menadzer = menadzerService.NadjiMenadzerSaKorisnickimImenom(korIme);
+
+        Long id = menadzer.getRestoran().getId();
+        // nadji id restorana preko sesije, i onda to prosledis preko localstoragea i ucitas u onoj stranici Moj Restoran
+
+        return new ResponseEntity(id, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "api/menadzer/pregled_pojedinacnog_artikla/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity InformacijeOPojedinacnomArtiklu(@PathVariable ("id") Long id)
+    {
+        String tip;
+        String kolicina;
+        Artikal artikal = artikalService.NadjiArtikal(id);
+        if(artikal.getTip() == Artikal.Tip.Jelo)
+        {
+            tip = "Jelo";
+        }else
+        {
+            tip = "Pice";
+        }
+        if(artikal.getKolicina() == Artikal.Kolicina.g)
+        {
+            kolicina = "g";
+        }
+        else
+        {
+            kolicina = "ml";
+        }
+
+        AzuriranjeArtiklaDto azuriranjeArtiklaDto = new AzuriranjeArtiklaDto(artikal.getId(), artikal.getNaziv(), artikal.getCena(), tip, kolicina, artikal.getOpis());
+
+        return new ResponseEntity(azuriranjeArtiklaDto, HttpStatus.OK);
+    }
+
+    @GetMapping(value="api/menadzer/pregled_restorana",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity MenadzerPregledRestorana(HttpSession sesija)
     {
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
@@ -74,7 +119,9 @@ public class MenadzerRestController {
         return new ResponseEntity(listaPorudzbina, HttpStatus.OK);
     }
 
-    @PostMapping("api/menadzer/dodavanje_novog_artikla")
+    @PostMapping(value="api/menadzer/dodavanje_novog_artikla",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity MenadzerDodajeNoviArtikal(@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto, HttpSession sesija)
     {
         HashMap<String, String> podaciGreske = ValidacijaDodavanja(dodavanjeNovogArtiklaDto);
@@ -105,7 +152,7 @@ public class MenadzerRestController {
         return new ResponseEntity("Menadzer je dodao novi artikal u restoran za koji je zaduzen.", HttpStatus.OK);
     }
 
-    @DeleteMapping("api/menadzer/obrisi_artikal/{id}")
+    @DeleteMapping(value="api/menadzer/obrisi_artikal/{id}")
     public ResponseEntity ObrisiArtikal(@ModelAttribute Artikal artikal, HttpSession sesija) {
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
 
@@ -146,7 +193,9 @@ public class MenadzerRestController {
         return new ResponseEntity("Artikal je uspesno obrisan", HttpStatus.OK);
     }
 
-    @PutMapping("api/menadzer/azuriranje_artikla")
+    @PutMapping(value="api/menadzer/azuriranje_artikla",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity AzurirajArtikal(@RequestBody AzuriranjeArtiklaDto azuriranjeArtiklaDto, HttpSession sesija)
     {
         HashMap<String, String> podaciGreske = ValidacijaAzuriranja(azuriranjeArtiklaDto);
