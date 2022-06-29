@@ -21,4 +21,6 @@ public interface PorudzbinaRepository extends JpaRepository<Porudzbina, UUID> {
     List<Porudzbina> findPorudzbinaByKupac(Kupac kupac);
 
     Porudzbina findPorudzbinaById(UUID id);
+
+    void deleteById(UUID id);
 }

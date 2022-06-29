@@ -40,6 +40,9 @@ public class AdminRestController {
     private ArtikalService artikalService;
 
     @Autowired
+    private PorudzbinaService porudzbinaService;
+
+    @Autowired
     private PorudzbinaArtikalService porudzbinaArtikalService;
 
     @GetMapping(value="api/admin/pregled_svih_korisnika",
@@ -230,6 +233,84 @@ public class AdminRestController {
     {
         Restoran restoran = restoranService.NadjiRestoranPoId(id);
 
+        Lokacija lokacija = restoran.getLokacija();
+
+        List<Menadzer> menadzeri = menadzerService.SviMenadzeri();
+
+        if(menadzeri == null)
+        {
+            System.out.println("pozzzz");
+        }
+
+        Menadzer menadzer = null;
+
+        for(Menadzer m : menadzeri)
+        {
+            System.out.println(m.toString());
+            System.out.println("bbbb");
+            if(m.getRestoran().getId().equals(id) == true)
+            {
+                menadzer = m;
+                break;
+            }
+        }
+
+        List<Artikal> artikli = artikalService.NadjiSveArtikleIzDatogRestorana(restoran);
+
+        List<Porudzbina> porudzbine = porudzbinaService.dobaviPorudzbinePoRestoranu(restoran);
+
+        List<PorudzbinaArtikal> paLista = new ArrayList<>();
+        List<List<PorudzbinaArtikal>> dzumbus = new ArrayList<>(new ArrayList<>());
+
+        for(Artikal a : artikli)
+        {
+            paLista = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimArtiklom(a);
+            dzumbus.add(paLista);
+        }
+
+        System.out.println("a");
+
+        System.out.println(menadzer);
+
+        menadzerService.ObrisiMenadzera(menadzer);
+
+        System.out.println("b");
+
+        for(List<PorudzbinaArtikal> pa : dzumbus)
+        {
+            for(PorudzbinaArtikal jednaPa : pa)
+            {
+                porudzbinaArtikalService.Obrisi(jednaPa);
+            }
+        }
+
+        System.out.println("c");
+
+        for(Porudzbina p : porudzbine)
+        {
+            porudzbinaService.ObrisiPorudzbinu(p);
+        }
+
+        System.out.println("d");
+
+        for(Artikal aa : artikli)
+        {
+            artikalService.ObrisiArtikal(aa);
+        }
+
+        System.out.println("e");
+
+        restoranService.ObrisiRestoranSaId(id);
+
+        System.out.println("f");
+
+        lokacijaService.ObrisiLokacijuPoId(lokacija.getId());
+
+
+
+        return new ResponseEntity("ok", HttpStatus.OK);
+        /*Restoran restoran = restoranService.NadjiRestoranPoId(id);
+
         List<Menadzer> listaSvihMenadzera = menadzerService.SviMenadzeri();
 
         System.out.println("a");
@@ -270,7 +351,7 @@ public class AdminRestController {
             artikalService.ObrisiArtikal(artikal);
         }
 
-        return new ResponseEntity("Obrisano", HttpStatus.OK);
+        return new ResponseEntity("Obrisano", HttpStatus.OK);*/
         // ides obrnuto, prvo brises menadzera, pa restoran, pa lokaciju
     }
 

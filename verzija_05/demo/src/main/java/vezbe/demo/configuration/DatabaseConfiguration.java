@@ -200,7 +200,7 @@ public class DatabaseConfiguration {
 
         Porudzbina porudzbina1 = new Porudzbina(restoran1, datumIVremePorudzbine1, c1, kupac3, Porudzbina.Status.UTransportu, dostavljac1);
 
-        Porudzbina porudzbina2 = new Porudzbina(restoran1, datumIVremePorudzbine2, c2, kupac4, Porudzbina.Status.UPripremi, null);
+        Porudzbina porudzbina2 = new Porudzbina(restoran1, datumIVremePorudzbine2, c2, kupac4, Porudzbina.Status.CekaDostavljaca, null);
 
         Porudzbina porudzbina3 = new Porudzbina(restoran4, datumIVremePorudzbine3, c3, kupac5, Porudzbina.Status.UTransportu, dostavljac1);
 
