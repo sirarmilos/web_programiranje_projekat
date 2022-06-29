@@ -71,7 +71,8 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok(porudzbine);
     }
 
-    @GetMapping("dobaviZaDostavljaca")
+    @GetMapping(value="dobaviZaDostavljaca",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity dobaviSvePorudzbineZaDostavljaca(HttpSession sesija)
     {
 
@@ -85,7 +86,8 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok(porudzbine);
     }
 
-    @GetMapping("MenadzerUrestoranu")
+    @GetMapping(value="MenadzerUrestoranu",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Porudzbina>> dobaviSvePorudzbineZaMenadzera(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
@@ -191,7 +193,8 @@ public class PorudzbinaRestController {
 
     }
 
-    @GetMapping("pregledPorudzbine")
+    @GetMapping(value= "pregledPorudzbine",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PregledPorudzbineDto> dobaviSveArtikleZaPorudzbinu(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
@@ -212,7 +215,9 @@ public class PorudzbinaRestController {
        }
     }
 
-    @GetMapping("kreiranjePorudzbine")
+    @PostMapping(value="kreiranjePorudzbine",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity kreiranjePorudzbine(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
