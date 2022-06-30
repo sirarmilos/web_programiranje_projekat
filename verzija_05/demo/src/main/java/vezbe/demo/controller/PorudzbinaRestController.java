@@ -16,6 +16,7 @@ import vezbe.demo.service.*;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -231,6 +232,11 @@ public class PorudzbinaRestController {
         if(porudzbina == null){
             return ResponseEntity.badRequest().build();
         }
+
+       /* porudzbina.setDatumVreme(LocalDateTime.now());
+        //LocalDateTime ldt = porudzbina.getDatumVreme().format(yyyy-MM-dd HH:mm:ss);
+        System.out.println(porudzbina.getDatumVreme());*/
+
 
         if(porudzbina.getKupac().getTipKupca() != null){
             porudzbina.setCena(updatePopust(porudzbina));
