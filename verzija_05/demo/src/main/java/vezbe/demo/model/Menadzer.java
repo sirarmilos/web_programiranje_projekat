@@ -45,8 +45,8 @@ public class Menadzer extends Korisnik implements Serializable {
 
     @Override
     public String toString() {
-        return "Menadzer{"/* +
+        return "Menadzer{" +
                 "restoran=" + restoran +
-                '}'*/;
+                '}';
     }
 }

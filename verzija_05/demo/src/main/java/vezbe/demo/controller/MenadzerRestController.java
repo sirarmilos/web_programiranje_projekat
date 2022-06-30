@@ -138,7 +138,7 @@ public class MenadzerRestController {
         Artikal artikal = dodavanjeNovogArtiklaDto.PrebaciUArtikal(dodavanjeNovogArtiklaDto, restoran);
 
         try{
-            artikalService.MenadzerDodajeNoviArtikal(artikal);
+            artikalService.MenadzerDodajeNoviArtikal(artikal, restoran);
         } catch (Exception e)
         {
             podaciGreske.put("Artikal", e.getMessage());
@@ -226,7 +226,21 @@ public class MenadzerRestController {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity(artikalService.AzurirajArtikal(azuriranjeArtiklaDto), HttpStatus.OK);
+        try {
+            artikalService.AzurirajArtikal(azuriranjeArtiklaDto, restoran);
+        }catch (Exception e)
+        {
+            podaciGreske.put("Artikal", e.getMessage());
+        }
+
+        if(podaciGreske.isEmpty() == false)
+        {
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity("Uspesno ste azurirali artikal!", HttpStatus.OK);
+
+        //return new ResponseEntity(artikalService.AzurirajArtikal(azuriranjeArtiklaDto), HttpStatus.OK);
     }
 
     private HashMap<String, String> ValidacijaDodavanja(DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto)

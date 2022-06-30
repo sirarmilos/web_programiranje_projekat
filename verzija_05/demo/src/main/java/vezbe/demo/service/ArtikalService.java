@@ -13,6 +13,7 @@ import vezbe.demo.repository.PorudzbinaArtikalRepository;
 import vezbe.demo.repository.PorudzbinaRepository;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,20 +35,25 @@ public class ArtikalService {
         return artikli;
     }
 
-    public void MenadzerDodajeNoviArtikal(Artikal artikal) throws Exception
+    public void MenadzerDodajeNoviArtikal(Artikal artikal, Restoran restoran) throws Exception
     {
-        Provera(artikal.getNaziv(), (List<Artikal>) (List<?>)artikalRepository.findAll());
+        Provera(artikal.getNaziv(), (List<Artikal>) (List<?>)artikalRepository.findAll(), restoran);
 
         artikalRepository.save(artikal);
     }
 
-    private void Provera(String naziv, List<Artikal> set) throws Exception
+    private void Provera(String naziv, List<Artikal> set, Restoran restoran) throws Exception
     {
+        List<Artikal> artikli = new ArrayList<>();
+
         for(Artikal artikal : set)
         {
-            if(artikal.getNaziv().equals(naziv))
+            if(artikal.getRestoran().getId().equals(restoran.getId()))
             {
-                throw new Exception("Artikal sa ovim imenom: " + naziv + " vec postoji!");
+                if(artikal.getNaziv().equals(naziv))
+                {
+                    throw new Exception("Artikal sa ovim imenom: " + naziv + " vec postoji!");
+                }
             }
         }
     }
@@ -78,11 +84,32 @@ public class ArtikalService {
         return false;
     }
 
-    public Artikal AzurirajArtikal(AzuriranjeArtiklaDto azuriranjeArtiklaDto)
+    private void ProveraZaAzuriranje(String naziv, List<Artikal> set, Restoran restoran) throws Exception
+    {
+        List<Artikal> artikli = new ArrayList<>();
+
+        for(Artikal artikal : set)
+        {
+            if(artikal.getRestoran().getId().equals(restoran.getId()))
+            {
+                if(artikal.getNaziv().equals(naziv))
+                {
+                    throw new Exception("Artikal sa ovim imenom: " + naziv + " vec postoji!");
+                }
+            }
+        }
+    }
+
+    public Artikal AzurirajArtikal(AzuriranjeArtiklaDto azuriranjeArtiklaDto, Restoran restoran) throws Exception
     {
         Artikal artikal = artikalRepository.findArtikalById(azuriranjeArtiklaDto.getId());
 
+        String naziv = azuriranjeArtiklaDto.getNaziv();
+
+        ProveraZaAzuriranje(naziv, (List<Artikal>) (List<?>)artikalRepository.findAll(), restoran);
+
         artikal.setNaziv(azuriranjeArtiklaDto.getNaziv());
+
         artikal.setCena(azuriranjeArtiklaDto.getCena());
         if(azuriranjeArtiklaDto.getTip().equals("Jelo"))
         {

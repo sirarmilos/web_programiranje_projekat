@@ -8,6 +8,7 @@ import vezbe.demo.model.TipKupca;
 import vezbe.demo.repository.KupacRepository;
 import vezbe.demo.repository.TipKupcaRepository;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 
 @Service
@@ -36,4 +37,28 @@ public class KupacService {
        return  tipKupcaRepository.findTipKupcaByIme(ime);
     }
 
+    public Kupac VratiKupca(String korisnickoIme) throws AccountNotFoundException
+    {
+        Kupac kupac = PronadjiKupca(korisnickoIme,(List<Kupac>)((List<?>)kupacRepository.findAll()));
+
+        if(kupac == null)
+        {
+            throw new AccountNotFoundException("Kupac sa ovim korisnickim imenom ne postoji.");
+        }
+
+        return kupac;
+    }
+
+    private Kupac PronadjiKupca(String korisnickoIme, List<Kupac> set)
+    {
+        for(Kupac kupac : set)
+        {
+            if(kupac.getKorisnickoIme().equals(korisnickoIme))
+            {
+                return kupac;
+            }
+        }
+
+        return null;
+    }
 }
