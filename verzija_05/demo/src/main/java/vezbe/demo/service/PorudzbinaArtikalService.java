@@ -54,4 +54,9 @@ public class PorudzbinaArtikalService {
         porudzbinaArtikalRepository.delete(pa);
     }
 
+    public void sacuvajPorudzbinaArtikal(PorudzbinaArtikal pa)
+    {
+        porudzbinaArtikalRepository.save(pa);
+    }
+
 }

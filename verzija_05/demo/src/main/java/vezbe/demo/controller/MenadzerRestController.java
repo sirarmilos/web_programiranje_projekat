@@ -177,11 +177,11 @@ public class MenadzerRestController {
 
         if(restoran.getId() == artikalTrazeni.getRestoran().getId()) {
 
-            List<PorudzbinaArtikal> listaPorudzbinaArtikal = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimArtiklom(artikalTrazeni);
+           /* List<PorudzbinaArtikal> listaPorudzbinaArtikal = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimArtiklom(artikalTrazeni);
 
             List<Porudzbina> listaPorudzbina = porudzbinaService.NadjiSvePorudzbineSaOvimId(listaPorudzbinaArtikal);
 
-            porudzbinaService.SmanjiCenuPorudzbinaNakonBrisanjaArtiklaIzRestorana(listaPorudzbina, artikalTrazeni);
+            porudzbinaService.SmanjiCenuPorudzbinaNakonBrisanjaArtiklaIzRestorana(listaPorudzbina, artikalTrazeni);*/
 
             this.artikalService.ObrisiArtikal(artikalTrazeni);
         }
