@@ -160,6 +160,7 @@ public class PorudzbinaRestController {
         porudzbinaArtikal.setKolicina(dto.getKolicina());
         porudzbinaService.sacuvajPorudzbinaArtikal(porudzbinaArtikal);*/
         sesija.setAttribute("porudzbina", porudzbina);
+        sesija.setAttribute("porudzbinaArtikli", porudzbinaArtikali);
         return ResponseEntity.ok().build();
     }
 
@@ -228,7 +229,20 @@ public class PorudzbinaRestController {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
+        Date d=new Date();
+        int year=d.getYear();
+        year += 1900;
+        int mesec = d.getMonth();
+        int dan = d.getDay();
+        int sat = d.getHours();
+        int minut = d.getMinutes();
+        int sekunda = d.getSeconds();
+
+        LocalDateTime kreirajDatumVreme = LocalDateTime.of(year, mesec, dan, sat, minut, sekunda);
+        System.out.println(kreirajDatumVreme);
+
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
+        porudzbina.setDatumVreme(kreirajDatumVreme);
         if(porudzbina == null){
             return ResponseEntity.badRequest().build();
         }
@@ -237,6 +251,8 @@ public class PorudzbinaRestController {
         //LocalDateTime ldt = porudzbina.getDatumVreme().format(yyyy-MM-dd HH:mm:ss);
         System.out.println(porudzbina.getDatumVreme());*/
 
+        System.out.println(porudzbina.getDatumVreme());
+
 
         if(porudzbina.getKupac().getTipKupca() != null){
             porudzbina.setCena(updatePopust(porudzbina));
@@ -244,7 +260,16 @@ public class PorudzbinaRestController {
 
         porudzbinaService.sacuvajPorudzbinu(porudzbina);
 
+        Set<PorudzbinaArtikal> lista = (Set<PorudzbinaArtikal>) sesija.getAttribute("porudzbinaArtikli");
+
+        for(PorudzbinaArtikal pa : lista)
+        {
+            porudzbinaArtikalService.sacuvajPorudzbinaArtikal(pa);
+        }
+
+
         sesija.removeAttribute("porudzbina");
+        sesija.removeAttribute("porudzbinaArtikli");
         return ResponseEntity.ok().build();
 
     }
@@ -271,7 +296,11 @@ public class PorudzbinaRestController {
             return new ResponseEntity("Niste Kupac, ne mozete da vidite ovu informaciju", HttpStatus.BAD_REQUEST);
         }
 
+        System.out.println(id);
+
         Porudzbina porudzbina = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        //System.out.println(porudzbina);
 
         List<PorudzbinaArtikal> sve = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimId(id);
 

@@ -18,13 +18,13 @@ public class PrikaziIzabraniRestoranDto {
     private StatusEnum status;
     private Boolean b;
     private String prosecnaOcena;
-    private List<Komentar> listaKomentara;
+    private List<KoJeDaoKomentarDto> listaKomentara;
     private List<Artikal> listaArtikala;
 
     public PrikaziIzabraniRestoranDto() {
     }
 
-    public PrikaziIzabraniRestoranDto(Restoran restoran, Lokacija lokacija, Boolean b, String prosecnaOcena, List<Komentar> listaKomentara, List<Artikal> listaArtikala) {
+    public PrikaziIzabraniRestoranDto(Restoran restoran, Lokacija lokacija, Boolean b, String prosecnaOcena, List<KoJeDaoKomentarDto> listaKomentara, List<Artikal> listaArtikala) {
         this.restoran = restoran;
         this.lokacija = lokacija;
         this.status = status;
@@ -72,11 +72,11 @@ public class PrikaziIzabraniRestoranDto {
         this.prosecnaOcena = prosecnaOcena;
     }
 
-    public List<Komentar> getListaKomentara() {
+    public List<KoJeDaoKomentarDto> getListaKomentara() {
         return listaKomentara;
     }
 
-    public void setListaKomentara(List<Komentar> listaKomentara) {
+    public void setListaKomentara(List<KoJeDaoKomentarDto> listaKomentara) {
         this.listaKomentara = listaKomentara;
     }
 

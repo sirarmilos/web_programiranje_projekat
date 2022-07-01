@@ -5,14 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import vezbe.demo.dto.ArtikalZaPretragaArtikalPoIdDto;
-import vezbe.demo.dto.PretragaRestoranaDto;
-import vezbe.demo.dto.PrikazRestoranaDostavljacDto;
-import vezbe.demo.dto.PrikaziIzabraniRestoranDto;
-import vezbe.demo.model.Artikal;
-import vezbe.demo.model.Komentar;
-import vezbe.demo.model.Lokacija;
-import vezbe.demo.model.Restoran;
+import vezbe.demo.dto.*;
+import vezbe.demo.model.*;
 import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
@@ -268,7 +262,23 @@ public class RestoranRestController {
 
         List<Komentar> listaKomentara = komentarService.SviKomentariZaRestoran(restoran);
 
-        PrikaziIzabraniRestoranDto prikaziIzabraniRestoranDto = new PrikaziIzabraniRestoranDto(restoran, lokacija, b, prosecna_ocena, listaKomentara, listArtikalaIzRestorana);
+        //Kupac kupac = new Kupac();
+
+        KoJeDaoKomentarDto koJeDaoKomentarDto = new KoJeDaoKomentarDto();
+
+        List<KoJeDaoKomentarDto> listaNova = new ArrayList<>();
+
+        for(Komentar k : listaKomentara)
+        {
+            String korIme = k.getKupac().getKorisnickoIme();
+            System.out.println(korIme);
+            koJeDaoKomentarDto.setKorisnickoIme(korIme);
+            koJeDaoKomentarDto.setOcena(k.getOcena());
+            koJeDaoKomentarDto.setTekstKomentara(k.getTekstKomentara());
+            listaNova.add(koJeDaoKomentarDto);
+        }
+
+        PrikaziIzabraniRestoranDto prikaziIzabraniRestoranDto = new PrikaziIzabraniRestoranDto(restoran, lokacija, b, prosecna_ocena, listaNova, listArtikalaIzRestorana);
 
         return new ResponseEntity(prikaziIzabraniRestoranDto, HttpStatus.OK);
     }
