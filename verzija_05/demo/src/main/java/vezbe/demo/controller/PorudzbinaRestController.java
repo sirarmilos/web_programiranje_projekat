@@ -108,7 +108,7 @@ public class PorudzbinaRestController {
     @PostMapping(value="dodajArtikal",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Porudzbina> dodajArtikal( @RequestBody PorudzbinaArtikalDto dto, HttpSession sesija)
+    public ResponseEntity dodajArtikal( @RequestBody PorudzbinaArtikalDto dto, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -121,8 +121,11 @@ public class PorudzbinaRestController {
         //UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
         System.out.println(dto.getKolicina());
         System.out.println(dto.getId());
-        if(dto.getKolicina() < 1)
-            return ResponseEntity.notFound().build();
+        if(dto.getKolicina() < 1) {
+            //return ResponseEntity.status(HttpStatus.FORBIDDEN).body("poz");
+            return new ResponseEntity("Greska! Ne mozete uneti broj proizvoda manji od 0!", HttpStatus.FORBIDDEN);
+        }
+        //return ResponseEntity.badRequest().build();
 
         if(porudzbina == null){
             porudzbina = new Porudzbina(artikal.getRestoran(), LocalDateTime.now(), artikal.getCena().multiply(BigDecimal.valueOf(dto.getKolicina())), kupac, Porudzbina.Status.Obrada, null);
@@ -136,7 +139,8 @@ public class PorudzbinaRestController {
         }*/
 
         if(porudzbina.getRestoran().getId() != artikal.getRestoran().getId()){
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Greska! Ne mozete u korpu da dodate artikal iz drugog restorana!", HttpStatus.BAD_REQUEST);
+           // return ResponseEntity.badRequest().build();
         }
 
 

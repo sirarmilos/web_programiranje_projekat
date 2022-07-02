@@ -264,12 +264,13 @@ public class RestoranRestController {
 
         //Kupac kupac = new Kupac();
 
-        KoJeDaoKomentarDto koJeDaoKomentarDto = new KoJeDaoKomentarDto();
+
 
         List<KoJeDaoKomentarDto> listaNova = new ArrayList<>();
 
         for(Komentar k : listaKomentara)
         {
+            KoJeDaoKomentarDto koJeDaoKomentarDto = new KoJeDaoKomentarDto();
             String korIme = k.getKupac().getKorisnickoIme();
             System.out.println(korIme);
             koJeDaoKomentarDto.setKorisnickoIme(korIme);

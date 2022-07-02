@@ -1,10 +1,15 @@
 package vezbe.demo.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vezbe.demo.dto.AzuriranjeArtiklaDto;
 import vezbe.demo.dto.DodavanjeNovogArtiklaDto;
 import vezbe.demo.dto.PrikazRestoranaDto;
@@ -12,6 +17,7 @@ import vezbe.demo.model.*;
 import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -120,10 +126,13 @@ public class MenadzerRestController {
     }
 
     @PostMapping(value="api/menadzer/dodavanje_novog_artikla",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity MenadzerDodajeNoviArtikal(@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto, HttpSession sesija)
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity MenadzerDodajeNoviArtikal(/*@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto,*/@RequestBody MultipartFile multipartFile, HttpSession sesija) throws IOException
     {
+        System.out.println(multipartFile);
+        DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto = null;//new ObjectMapper().readValue(multipartFile, DodavanjeNovogArtiklaDto.class);
+
         HashMap<String, String> podaciGreske = ValidacijaDodavanja(dodavanjeNovogArtiklaDto);
 
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
@@ -137,6 +146,10 @@ public class MenadzerRestController {
 
         Artikal artikal = dodavanjeNovogArtiklaDto.PrebaciUArtikal(dodavanjeNovogArtiklaDto, restoran);
 
+        String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+        artikal.setPhotos(fileName);
+
+
         try{
             artikalService.MenadzerDodajeNoviArtikal(artikal, restoran);
         } catch (Exception e)
@@ -148,6 +161,10 @@ public class MenadzerRestController {
         {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
+
+        String uploadDir = "user-photos/" + artikal.getId();
+        FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+
 
         return new ResponseEntity("Menadzer je dodao novi artikal u restoran za koji je zaduzen.", HttpStatus.OK);
     }
