@@ -205,14 +205,15 @@ public class PorudzbinaRestController {
 
     @GetMapping(value= "pregledPorudzbine",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PregledPorudzbineDto> dobaviSveArtikleZaPorudzbinu(HttpSession sesija)
+    public ResponseEntity/*<PregledPorudzbineDto>*/ dobaviSveArtikleZaPorudzbinu(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
         if(porudzbina == null){
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Nemate trenutno nijedan proizvod u korpi", HttpStatus.BAD_REQUEST);
+            /*return ResponseEntity.badRequest().build();*/
         }
 
        List<PorudzbinaArtikal> pa = porudzbina.getPorudzbineArtikli().stream().toList();
@@ -233,7 +234,7 @@ public class PorudzbinaRestController {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Date d=new Date();
+        /*Date d=new Date();
         int year=d.getYear();
         year += 1900;
         int mesec = d.getMonth();
@@ -241,8 +242,8 @@ public class PorudzbinaRestController {
         int sat = d.getHours();
         int minut = d.getMinutes();
         int sekunda = d.getSeconds();
-
-        LocalDateTime kreirajDatumVreme = LocalDateTime.of(year, mesec, dan, sat, minut, sekunda);
+        System.out.println(d);*/
+        LocalDateTime kreirajDatumVreme = LocalDateTime.now();// LocalDateTime.of(year, mesec, dan, sat, minut, sekunda);
         System.out.println(kreirajDatumVreme);
 
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
@@ -255,7 +256,7 @@ public class PorudzbinaRestController {
         //LocalDateTime ldt = porudzbina.getDatumVreme().format(yyyy-MM-dd HH:mm:ss);
         System.out.println(porudzbina.getDatumVreme());*/
 
-        System.out.println(porudzbina.getDatumVreme());
+        //System.out.println(porudzbina.getDatumVreme());
 
 
         if(porudzbina.getKupac().getTipKupca() != null){
@@ -338,7 +339,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.Obrada && restoran.getId().equals(p.getRestoran().getId())) {
             p.setStatus(Porudzbina.Status.UPripremi);
         }else {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'U pripremi' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'Obrada'", HttpStatus.BAD_REQUEST);
         }
 
         porudzbinaService.sacuvajPorudzbinu(p);
@@ -361,7 +363,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.UPripremi && restoran.getId().equals(p.getRestoran().getId())) {
             p.setStatus(Porudzbina.Status.CekaDostavljaca);
         }else {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'Ceka dostavljaca' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'U pripremi'", HttpStatus.BAD_REQUEST);
         }
 
         porudzbinaService.sacuvajPorudzbinu(p);
@@ -384,7 +387,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.CekaDostavljaca) {
             p.setStatus(Porudzbina.Status.UTransportu);
         }else {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'U transport' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'Ceka dostavljaca'", HttpStatus.BAD_REQUEST);
         }
 
         p.setDostavljac(d);
@@ -409,7 +413,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.UTransportu && d.getKorisnickoIme().equals(p.getDostavljac().getKorisnickoIme())) {
             p.setStatus(Porudzbina.Status.Dostavljena);
         }else {
-            return ResponseEntity.badRequest().build();
+            // return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'Dostavljen' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'U transportu'", HttpStatus.BAD_REQUEST);
         }
 
         porudzbinaService.sacuvajPorudzbinu(p);

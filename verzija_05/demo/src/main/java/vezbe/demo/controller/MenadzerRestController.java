@@ -128,10 +128,9 @@ public class MenadzerRestController {
     @PostMapping(value="api/menadzer/dodavanje_novog_artikla",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity MenadzerDodajeNoviArtikal(/*@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto,*/@RequestBody MultipartFile multipartFile, HttpSession sesija) throws IOException
+    public ResponseEntity MenadzerDodajeNoviArtikal(/*@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto,*/@RequestParam MultipartFile multipartFile, @RequestParam("json") String jsonData, HttpSession sesija) throws IOException
     {
-        System.out.println(multipartFile);
-        DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto = null;//new ObjectMapper().readValue(multipartFile, DodavanjeNovogArtiklaDto.class);
+        DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto = new ObjectMapper().readValue(jsonData, DodavanjeNovogArtiklaDto.class);
 
         HashMap<String, String> podaciGreske = ValidacijaDodavanja(dodavanjeNovogArtiklaDto);
 
