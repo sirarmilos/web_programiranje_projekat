@@ -45,6 +45,11 @@ public class KomentarRestController {
         //System.out.println(porudzbina.getId());
         //System.out.println(porudzbina);
 
+        if(porudzbina.getStatus().equals(Porudzbina.Status.Dostavljena) == false)
+        {
+            return new ResponseEntity("Ne mozete da ostavite komentar zato sto vase porudzbina nije jos u statusu 'Dostavljena'.", HttpStatus.BAD_REQUEST);
+        }
+
         List<PorudzbinaArtikal> lista = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimId(id);
 
         Artikal artikal = artikalService.NadjiArtikal(1l);
