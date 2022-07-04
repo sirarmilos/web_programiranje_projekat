@@ -25,7 +25,7 @@ public class Komentar implements Serializable {
     // restoran
 
     @ManyToOne
-    @JoinColumn(name = "restoran_id", nullable = false)
+    @JoinColumn(name = "restoran_id"/*, nullable = false*/)
     @JsonIgnore
     private Restoran restoran;
 

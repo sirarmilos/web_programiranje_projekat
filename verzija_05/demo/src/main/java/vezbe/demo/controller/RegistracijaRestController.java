@@ -3,6 +3,7 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,9 @@ public class RegistracijaRestController {
     @Autowired
     private SesijaService sesijaService;
 
-    @PostMapping("api/registracija")
+    @PostMapping(value ="api/registracija",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity Registracija(@RequestBody RegistracijaDto registracijaDto, HttpSession sesija)
     {
         Boolean povratna;
@@ -67,7 +70,11 @@ public class RegistracijaRestController {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity("Uspesno ste se registrovali.", HttpStatus.OK);
+        sesija.setAttribute("uloga", kupac.getClass().getName());
+        sesija.setAttribute("korisnickoIme", kupac.getKorisnickoIme());
+
+        return new ResponseEntity(kupac, HttpStatus.OK);
+        //return new ResponseEntity("Uspesno ste se registrovali.", HttpStatus.OK);
     }
 
     private HashMap<String, String> Validacija(RegistracijaDto registracijaDto)

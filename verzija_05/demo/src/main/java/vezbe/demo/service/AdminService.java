@@ -6,6 +6,7 @@ import vezbe.demo.dto.KreiranjeMenadzeraDto;
 import vezbe.demo.model.*;
 import vezbe.demo.repository.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,6 +29,12 @@ public class AdminService {
 
     @Autowired
     private RestoranRepository restoranRepository;
+
+    @Autowired
+    private KomentarRepository komentarRepository;
+
+    @Autowired
+    private PorudzbinaRepository porudzbinaRepository;
 
     public List<Korisnik> PregledSvihPodatakaOdStraneAdmina()
     {
@@ -107,6 +114,42 @@ public class AdminService {
                 throw new Exception("Korisnik sa korisnickim imenom: " + korisnickoIme + " vec postoji.");
             }
         }
+    }
+
+    public void sacuvajMenadzera(Menadzer menadzer)
+    {
+        menadzerRepository.save(menadzer);
+    }
+
+    public List<Komentar> nadjiSveKomentare(Restoran restoran)
+    {
+        List<Komentar> komen = komentarRepository.findAll();
+        List<Komentar> potrebniKomen = new ArrayList<>();
+
+        for(Komentar kom : komen)
+        {
+            if(kom.getRestoran().equals(restoran) == true)
+            {
+                potrebniKomen.add(kom);
+            }
+        }
+
+        return potrebniKomen;
+    }
+
+    public void sacuvajKomentar(Komentar komentar)
+    {
+        komentarRepository.save(komentar);
+    }
+
+    public void sacuvajPorudzbinu(Porudzbina p)
+    {
+        porudzbinaRepository.save(p);
+    }
+
+    public void obrisiRestoran(Restoran restoran)
+    {
+        restoranRepository.delete(restoran);
     }
 
 }

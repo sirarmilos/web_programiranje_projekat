@@ -23,7 +23,7 @@ public class Porudzbina implements Serializable {
 
     // porudzbina - porudzbinaArtikal - artikal
 
-    @OneToMany(mappedBy = "porudzbina", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "porudzbina", orphanRemoval = true)
     private Set<PorudzbinaArtikal> porudzbineArtikli = new HashSet<>();
 
 /*
@@ -34,7 +34,7 @@ public class Porudzbina implements Serializable {
     // restoran
 
     @ManyToOne
-    @JoinColumn(name = "restoran_id", nullable = false)
+    @JoinColumn(name = "restoran_id"/*, nullable = false*/)
     @JsonIgnore
     private Restoran restoran;
 

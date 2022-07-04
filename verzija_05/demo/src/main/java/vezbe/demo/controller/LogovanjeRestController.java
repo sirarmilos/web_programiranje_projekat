@@ -2,11 +2,14 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vezbe.demo.dto.LogovanjeDto;
+import vezbe.demo.dto.LogovanjeDtoSlanje;
 import vezbe.demo.dto.RegistracijaDto;
 import vezbe.demo.model.Korisnik;
 import vezbe.demo.service.LogovanjeService;
@@ -26,7 +29,20 @@ public class LogovanjeRestController {
     @Autowired
     private SesijaService sesijaService;
 
-    @PostMapping("api/logovanje")
+    @Autowired
+    public LogovanjeRestController(LogovanjeService logovanjeService) {this.logovanjeService = logovanjeService;}
+
+    @PostMapping(value="api/odlogovanje",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity Odlogovanje(HttpSession session){
+        session.invalidate();
+        return new ResponseEntity("Successfully logged out", HttpStatus.OK);
+    }
+
+    @PostMapping(value ="api/logovanje",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity Logovanje(@RequestBody LogovanjeDto logovanjeDto, HttpSession sesija)
     {
         HashMap<String, String> podaciGreske = ValidacijaLogovanja(logovanjeDto);
@@ -56,7 +72,32 @@ public class LogovanjeRestController {
         sesija.setAttribute("uloga", korisnik.getClass().getName());
         sesija.setAttribute("korisnickoIme", korisnik.getKorisnickoIme());
 
-        return new ResponseEntity(korisnik, HttpStatus.OK);
+        String ulogaZaSlanje = "proba";
+
+        if(korisnik.getClass().getName().equals("vezbe.demo.model.Kupac"))
+        {
+            ulogaZaSlanje = "kupac";
+        }
+        else if(korisnik.getClass().getName().equals("vezbe.demo.model.Admin"))
+        {
+            ulogaZaSlanje = "admin";
+        }
+        else if(korisnik.getClass().getName().equals("vezbe.demo.model.Dostavljac"))
+        {
+            ulogaZaSlanje = "dostavljac";
+        }
+        else if(korisnik.getClass().getName().equals("vezbe.demo.model.Menadzer"))
+        {
+            ulogaZaSlanje = "menadzer";
+        }
+
+        String sesijaId = (String)sesija.getAttribute("jsessionid");
+
+        //LogovanjeDtoSlanje logovanjeDtoSlanje = new LogovanjeDtoSlanje(korisnik, ulogaZaSlanje, sesija);
+
+        LogovanjeDtoSlanje logovanjeDtoSlanje = new LogovanjeDtoSlanje(korisnik, ulogaZaSlanje);
+
+        return new ResponseEntity(logovanjeDtoSlanje, HttpStatus.OK);
     }
 
     private HashMap<String, String> ValidacijaLogovanja(LogovanjeDto logovanjeDto)

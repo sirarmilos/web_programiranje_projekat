@@ -1,9 +1,16 @@
 package vezbe.demo.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vezbe.demo.dto.AzuriranjeArtiklaDto;
 import vezbe.demo.dto.DodavanjeNovogArtiklaDto;
 import vezbe.demo.dto.PrikazRestoranaDto;
@@ -11,6 +18,7 @@ import vezbe.demo.model.*;
 import vezbe.demo.service.*;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +44,51 @@ public class MenadzerRestController {
     @Autowired
     private PorudzbinaArtikalService porudzbinaArtikalService;
 
-    @GetMapping("api/menadzer/pregled_restorana")
+
+    @GetMapping(value="api/menadzer/dobavi_id_restorana",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity DobaviIdRestoranaZaMenadzer(HttpSession sesija)
+    {
+        String korIme = (String) sesija.getAttribute("korisnickoIme");
+
+        Menadzer menadzer = menadzerService.NadjiMenadzerSaKorisnickimImenom(korIme);
+
+        Long id = menadzer.getRestoran().getId();
+        // nadji id restorana preko sesije, i onda to prosledis preko localstoragea i ucitas u onoj stranici Moj Restoran
+
+        return new ResponseEntity(id, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "api/menadzer/pregled_pojedinacnog_artikla/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity InformacijeOPojedinacnomArtiklu(@PathVariable ("id") Long id)
+    {
+        String tip;
+        String kolicina;
+        Artikal artikal = artikalService.NadjiArtikal(id);
+        if(artikal.getTip() == Artikal.Tip.Jelo)
+        {
+            tip = "Jelo";
+        }else
+        {
+            tip = "Pice";
+        }
+        if(artikal.getKolicina() == Artikal.Kolicina.g)
+        {
+            kolicina = "g";
+        }
+        else
+        {
+            kolicina = "ml";
+        }
+
+        AzuriranjeArtiklaDto azuriranjeArtiklaDto = new AzuriranjeArtiklaDto(artikal.getId(), artikal.getNaziv(), artikal.getCena(), tip, kolicina, artikal.getOpis());
+
+        return new ResponseEntity(azuriranjeArtiklaDto, HttpStatus.OK);
+    }
+
+    @GetMapping(value="api/menadzer/pregled_restorana",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity MenadzerPregledRestorana(HttpSession sesija)
     {
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
@@ -74,9 +126,13 @@ public class MenadzerRestController {
         return new ResponseEntity(listaPorudzbina, HttpStatus.OK);
     }
 
-    @PostMapping("api/menadzer/dodavanje_novog_artikla")
-    public ResponseEntity MenadzerDodajeNoviArtikal(@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto, HttpSession sesija)
+    @PostMapping(value="api/menadzer/dodavanje_novog_artikla",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity MenadzerDodajeNoviArtikal(@RequestParam("image") MultipartFile multipartFile, @RequestParam("json") String jsonData, HttpSession sesija) throws IOException
     {
+        DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto = new ObjectMapper().readValue(jsonData, DodavanjeNovogArtiklaDto.class);
+
         HashMap<String, String> podaciGreske = ValidacijaDodavanja(dodavanjeNovogArtiklaDto);
 
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
@@ -90,8 +146,12 @@ public class MenadzerRestController {
 
         Artikal artikal = dodavanjeNovogArtiklaDto.PrebaciUArtikal(dodavanjeNovogArtiklaDto, restoran);
 
+        String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+        artikal.setPhotos(fileName);
+
+
         try{
-            artikalService.MenadzerDodajeNoviArtikal(artikal);
+            artikalService.MenadzerDodajeNoviArtikal(artikal, restoran);
         } catch (Exception e)
         {
             podaciGreske.put("Artikal", e.getMessage());
@@ -102,10 +162,13 @@ public class MenadzerRestController {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
+        String uploadDir = "user-photos/" + artikal.getId();
+        FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+
         return new ResponseEntity("Menadzer je dodao novi artikal u restoran za koji je zaduzen.", HttpStatus.OK);
     }
 
-    @DeleteMapping("api/menadzer/obrisi_artikal/{id}")
+    @DeleteMapping(value="api/menadzer/obrisi_artikal/{id}")
     public ResponseEntity ObrisiArtikal(@ModelAttribute Artikal artikal, HttpSession sesija) {
         Boolean povratna = sesijaService.validacijaUloge(sesija, "Menadzer");
 
@@ -130,11 +193,11 @@ public class MenadzerRestController {
 
         if(restoran.getId() == artikalTrazeni.getRestoran().getId()) {
 
-            List<PorudzbinaArtikal> listaPorudzbinaArtikal = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimArtiklom(artikalTrazeni);
+           /* List<PorudzbinaArtikal> listaPorudzbinaArtikal = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimArtiklom(artikalTrazeni);
 
             List<Porudzbina> listaPorudzbina = porudzbinaService.NadjiSvePorudzbineSaOvimId(listaPorudzbinaArtikal);
 
-            porudzbinaService.SmanjiCenuPorudzbinaNakonBrisanjaArtiklaIzRestorana(listaPorudzbina, artikalTrazeni);
+            porudzbinaService.SmanjiCenuPorudzbinaNakonBrisanjaArtiklaIzRestorana(listaPorudzbina, artikalTrazeni);*/
 
             this.artikalService.ObrisiArtikal(artikalTrazeni);
         }
@@ -146,7 +209,9 @@ public class MenadzerRestController {
         return new ResponseEntity("Artikal je uspesno obrisan", HttpStatus.OK);
     }
 
-    @PutMapping("api/menadzer/azuriranje_artikla")
+    @PutMapping(value="api/menadzer/azuriranje_artikla",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity AzurirajArtikal(@RequestBody AzuriranjeArtiklaDto azuriranjeArtiklaDto, HttpSession sesija)
     {
         HashMap<String, String> podaciGreske = ValidacijaAzuriranja(azuriranjeArtiklaDto);
@@ -177,7 +242,21 @@ public class MenadzerRestController {
             return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity(artikalService.AzurirajArtikal(azuriranjeArtiklaDto), HttpStatus.OK);
+        try {
+            artikalService.AzurirajArtikal(azuriranjeArtiklaDto, restoran);
+        }catch (Exception e)
+        {
+            podaciGreske.put("Artikal", e.getMessage());
+        }
+
+        if(podaciGreske.isEmpty() == false)
+        {
+            return new ResponseEntity(podaciGreske, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity("Uspesno ste azurirali artikal!", HttpStatus.OK);
+
+        //return new ResponseEntity(artikalService.AzurirajArtikal(azuriranjeArtiklaDto), HttpStatus.OK);
     }
 
     private HashMap<String, String> ValidacijaDodavanja(DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto)

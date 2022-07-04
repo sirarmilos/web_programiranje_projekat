@@ -27,4 +27,5 @@ public interface RestoranRepository extends JpaRepository<Restoran, Long> {
     List<Restoran> findAllByNazivStartingWithAndTipStartingWithAndLokacijaContains(@Param("naziv")String naziv, @Param("tip")String tip, @Param("adresa")String adresa);*/
 
     Restoran findRestoranById(Long id);
+    void deleteRestoranById(Long id);
 }

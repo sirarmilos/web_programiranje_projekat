@@ -29,6 +29,12 @@ public class PorudzbinaService {
     @Autowired
     private PorudzbinaArtikalService porudzbinaArtikalService;
 
+    public void ObrisiPorudzbinu(Porudzbina porudzbina)
+    {
+        System.out.println(porudzbina.getId());
+        porudzbinaRepository.deleteById(porudzbina.getId());
+    }
+
     public List<Porudzbina> dobaviSvePorudzbine(){
         return porudzbinaRepository.findAll();
 
@@ -49,6 +55,8 @@ public class PorudzbinaService {
     public Porudzbina dobaviPorudzbinuPoId(UUID id){
         return porudzbinaRepository.getById(id);
     }
+
+    public Porudzbina nadjiPorudzbinuPoId(UUID id) { return porudzbinaRepository.findPorudzbinaById(id);}
 
     public void sacuvajPorudzbinu(Porudzbina porudzbina){
         porudzbinaRepository.save(porudzbina);

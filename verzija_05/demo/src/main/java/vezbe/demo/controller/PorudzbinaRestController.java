@@ -3,9 +3,11 @@ package vezbe.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vezbe.demo.dto.ArtikalZaPregledPorudzbineDto;
+import vezbe.demo.dto.IspisPojedinacnePorudzbineDto;
 import vezbe.demo.dto.PorudzbinaArtikalDto;
 import vezbe.demo.dto.PregledPorudzbineDto;
 import vezbe.demo.model.*;
@@ -14,6 +16,7 @@ import vezbe.demo.service.*;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +42,9 @@ public class PorudzbinaRestController {
     @Autowired
     private ArtikalService artikalService;
 
+    @Autowired
+    private PorudzbinaArtikalService porudzbinaArtikalService;
+
     public BigDecimal updateCena(Porudzbina p){
         BigDecimal suma = BigDecimal.ZERO;
         for(PorudzbinaArtikal pa: p.getPorudzbineArtikli()){
@@ -55,7 +61,8 @@ public class PorudzbinaRestController {
         return cenaSaPopustom;
     }
 
-    @GetMapping("dobaviSve")
+    @GetMapping(value="dobaviSve",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Porudzbina>> dobaviSveporudzbinePoUlogovanomKupcu(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
@@ -69,7 +76,8 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok(porudzbine);
     }
 
-    @GetMapping("dobaviZaDostavljaca")
+    @GetMapping(value="dobaviZaDostavljaca",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity dobaviSvePorudzbineZaDostavljaca(HttpSession sesija)
     {
 
@@ -83,7 +91,8 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok(porudzbine);
     }
 
-    @GetMapping("MenadzerUrestoranu")
+    @GetMapping(value="MenadzerUrestoranu",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Porudzbina>> dobaviSvePorudzbineZaMenadzera(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
@@ -96,8 +105,10 @@ public class PorudzbinaRestController {
         return ResponseEntity.ok(porudzbine);
     }
 
-    @PostMapping("dodajArtikal")
-    public ResponseEntity<Porudzbina> dodajArtikal( @RequestBody PorudzbinaArtikalDto dto, HttpSession sesija)
+    @PostMapping(value="dodajArtikal",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity dodajArtikal( @RequestBody PorudzbinaArtikalDto dto, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -108,8 +119,13 @@ public class PorudzbinaRestController {
 
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
         //UUID porudzbinaId = (UUID) sesija.getAttribute("porudzbina_id");
-        if(dto.getKolicina() < 1)
-            return ResponseEntity.badRequest().build();
+        System.out.println(dto.getKolicina());
+        System.out.println(dto.getId());
+        if(dto.getKolicina() < 1) {
+            //return ResponseEntity.status(HttpStatus.FORBIDDEN).body("poz");
+            return new ResponseEntity("Greska! Ne mozete uneti broj proizvoda manji od 0!", HttpStatus.FORBIDDEN);
+        }
+        //return ResponseEntity.badRequest().build();
 
         if(porudzbina == null){
             porudzbina = new Porudzbina(artikal.getRestoran(), LocalDateTime.now(), artikal.getCena().multiply(BigDecimal.valueOf(dto.getKolicina())), kupac, Porudzbina.Status.Obrada, null);
@@ -123,7 +139,8 @@ public class PorudzbinaRestController {
         }*/
 
         if(porudzbina.getRestoran().getId() != artikal.getRestoran().getId()){
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Greska! Ne mozete u korpu da dodate artikal iz drugog restorana!", HttpStatus.BAD_REQUEST);
+           // return ResponseEntity.badRequest().build();
         }
 
 
@@ -147,6 +164,7 @@ public class PorudzbinaRestController {
         porudzbinaArtikal.setKolicina(dto.getKolicina());
         porudzbinaService.sacuvajPorudzbinaArtikal(porudzbinaArtikal);*/
         sesija.setAttribute("porudzbina", porudzbina);
+        sesija.setAttribute("porudzbinaArtikli", porudzbinaArtikali);
         return ResponseEntity.ok().build();
     }
 
@@ -185,15 +203,17 @@ public class PorudzbinaRestController {
 
     }
 
-    @GetMapping("pregledPorudzbine")
-    public ResponseEntity<PregledPorudzbineDto> dobaviSveArtikleZaPorudzbinu(HttpSession sesija)
+    @GetMapping(value= "pregledPorudzbine",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity/*<PregledPorudzbineDto>*/ dobaviSveArtikleZaPorudzbinu(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
         if(porudzbina == null){
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Nemate trenutno nijedan proizvod u korpi", HttpStatus.BAD_REQUEST);
+            /*return ResponseEntity.badRequest().build();*/
         }
 
        List<PorudzbinaArtikal> pa = porudzbina.getPorudzbineArtikli().stream().toList();
@@ -206,16 +226,38 @@ public class PorudzbinaRestController {
        }
     }
 
-    @GetMapping("kreiranjePorudzbine")
+    @PostMapping(value="kreiranjePorudzbine",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity kreiranjePorudzbine(HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Kupac"))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
+        /*Date d=new Date();
+        int year=d.getYear();
+        year += 1900;
+        int mesec = d.getMonth();
+        int dan = d.getDay();
+        int sat = d.getHours();
+        int minut = d.getMinutes();
+        int sekunda = d.getSeconds();
+        System.out.println(d);*/
+        LocalDateTime kreirajDatumVreme = LocalDateTime.now();// LocalDateTime.of(year, mesec, dan, sat, minut, sekunda);
+        System.out.println(kreirajDatumVreme);
+
         Porudzbina porudzbina = (Porudzbina) sesija.getAttribute("porudzbina");
+        porudzbina.setDatumVreme(kreirajDatumVreme);
         if(porudzbina == null){
             return ResponseEntity.badRequest().build();
         }
+
+       /* porudzbina.setDatumVreme(LocalDateTime.now());
+        //LocalDateTime ldt = porudzbina.getDatumVreme().format(yyyy-MM-dd HH:mm:ss);
+        System.out.println(porudzbina.getDatumVreme());*/
+
+        //System.out.println(porudzbina.getDatumVreme());
+
 
         if(porudzbina.getKupac().getTipKupca() != null){
             porudzbina.setCena(updatePopust(porudzbina));
@@ -223,12 +265,70 @@ public class PorudzbinaRestController {
 
         porudzbinaService.sacuvajPorudzbinu(porudzbina);
 
+        Set<PorudzbinaArtikal> lista = (Set<PorudzbinaArtikal>) sesija.getAttribute("porudzbinaArtikli");
+
+        for(PorudzbinaArtikal pa : lista)
+        {
+            porudzbinaArtikalService.sacuvajPorudzbinaArtikal(pa);
+        }
+
+
         sesija.removeAttribute("porudzbina");
+        sesija.removeAttribute("porudzbinaArtikli");
         return ResponseEntity.ok().build();
 
     }
 
-    @PutMapping("izmenaStatusaUPripremi/{uuid}")
+    @GetMapping(value="dobaviPorudzbinu/{uuid}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Porudzbina> dobaviJednuporudzbinuPoUlogovanomKupcu(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Porudzbina porudzbinaZaVracanje = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+        return ResponseEntity.ok(porudzbinaZaVracanje);
+    }
+
+
+    @GetMapping(value="dobavi_porudzbinu/{uuid}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity dobaviInformacijeOJednojPorudzbiniKupca(@PathVariable("uuid") UUID id, HttpSession sesija)
+    {
+        if(!sesijaService.validacijaUloge(sesija, "Kupac"))
+        {
+            return new ResponseEntity("Niste Kupac, ne mozete da vidite ovu informaciju", HttpStatus.BAD_REQUEST);
+        }
+
+        System.out.println(id);
+
+        Porudzbina porudzbina = porudzbinaService.dobaviPorudzbinuPoId(id);
+
+       // System.out.println(porudzbina);
+
+        //System.out.println(porudzbina);
+
+        List<PorudzbinaArtikal> sve = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimId(id);
+
+        List<IspisPojedinacnePorudzbineDto> lista = new ArrayList<>();
+
+        for(PorudzbinaArtikal pa : sve)
+        {
+            Artikal artikal = pa.getArtikal();
+            Porudzbina porudzbina1 = pa.getPorudzbina();
+            lista.add(new IspisPojedinacnePorudzbineDto(artikal.getNaziv(), artikal.getCena(), artikal.getOpis(), pa.getKolicina(), porudzbina1.getDatumVreme(), porudzbina1.getCena(), porudzbina1.getStatus()));
+        }
+
+        return new ResponseEntity(lista, HttpStatus.OK);
+    }
+
+
+
+
+    @PutMapping(value="izmenaStatusaUPripremi/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusUPripremi(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
@@ -241,7 +341,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.Obrada && restoran.getId().equals(p.getRestoran().getId())) {
             p.setStatus(Porudzbina.Status.UPripremi);
         }else {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'U pripremi' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'Obrada'", HttpStatus.BAD_REQUEST);
         }
 
         porudzbinaService.sacuvajPorudzbinu(p);
@@ -249,7 +350,9 @@ public class PorudzbinaRestController {
 
     }
 
-    @PutMapping("izmenaStatusaCekaDostavljaca/{uuid}")
+    @PutMapping(value = "izmenaStatusaCekaDostavljaca/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusCekaDostavljaca(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Menadzer"))
@@ -262,7 +365,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.UPripremi && restoran.getId().equals(p.getRestoran().getId())) {
             p.setStatus(Porudzbina.Status.CekaDostavljaca);
         }else {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'Ceka dostavljaca' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'U pripremi'", HttpStatus.BAD_REQUEST);
         }
 
         porudzbinaService.sacuvajPorudzbinu(p);
@@ -270,7 +374,9 @@ public class PorudzbinaRestController {
 
     }
 
-    @PutMapping("izmenaStatusaUTransportu/{uuid}")
+    @PutMapping(value="izmenaStatusaUTransportu/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusUTransportu(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Dostavljac"))
@@ -283,7 +389,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.CekaDostavljaca) {
             p.setStatus(Porudzbina.Status.UTransportu);
         }else {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'U transport' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'Ceka dostavljaca'", HttpStatus.BAD_REQUEST);
         }
 
         p.setDostavljac(d);
@@ -293,7 +400,9 @@ public class PorudzbinaRestController {
 
     }
 
-    @PutMapping("izmenaStatusaDostavljena/{uuid}")
+    @PutMapping(value="izmenaStatusaDostavljena/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity promeniStatusDostavljena(@PathVariable("uuid") UUID id, HttpSession sesija)
     {
         if(!sesijaService.validacijaUloge(sesija, "Dostavljac"))
@@ -306,7 +415,8 @@ public class PorudzbinaRestController {
         if(p.getStatus() == Porudzbina.Status.UTransportu && d.getKorisnickoIme().equals(p.getDostavljac().getKorisnickoIme())) {
             p.setStatus(Porudzbina.Status.Dostavljena);
         }else {
-            return ResponseEntity.badRequest().build();
+            // return ResponseEntity.badRequest().build();
+            return new ResponseEntity("Ovo nije validna promena. U stanje 'Dostavljen' mozete da promeniti samo ukoliko je porudzbina trenutno u stanju 'U transportu'", HttpStatus.BAD_REQUEST);
         }
 
         porudzbinaService.sacuvajPorudzbinu(p);

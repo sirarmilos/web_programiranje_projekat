@@ -3,6 +3,7 @@ package vezbe.demo.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vezbe.demo.dto.PretragaRestoranaDto;
 import vezbe.demo.model.Porudzbina;
 import vezbe.demo.model.Restoran;
@@ -66,6 +67,23 @@ public class RestoranService {
         }
 
         return null;
+    }
+
+    public Restoran DobaviRestoranPoId(Long id)
+    {
+        return restoranRepository.findRestoranById(id);
+    }
+
+   /* public Long DobaviRestoranIDPoUUID(UUID id)
+    {
+        Restoran restoran = restoranRepository.findRestoranByUUID(id);
+        return  restoran.getId();
+    }*/
+
+    @Transactional
+    public void ObrisiRestoranSaId(Long id)
+    {
+        restoranRepository.deleteRestoranById(id);
     }
 
 }

@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class ArtikalZaPregledPorudzbineDto {
 
+    private Long id;
     private String naziv;
     private int kolicina;
     private BigDecimal cena;
@@ -23,6 +24,7 @@ public class ArtikalZaPregledPorudzbineDto {
         this.naziv = porudzbinaArtikal.getArtikal().getNaziv();
         this.kolicina = porudzbinaArtikal.getKolicina();
         this.cena = porudzbinaArtikal.getArtikal().getCena();
+        this.id = porudzbinaArtikal.getArtikal().getId();
     }
 
 }
