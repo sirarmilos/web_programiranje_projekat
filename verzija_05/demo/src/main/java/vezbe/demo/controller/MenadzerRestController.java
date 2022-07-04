@@ -2,6 +2,7 @@ package vezbe.demo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -128,7 +129,7 @@ public class MenadzerRestController {
     @PostMapping(value="api/menadzer/dodavanje_novog_artikla",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity MenadzerDodajeNoviArtikal(/*@RequestBody DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto,*/@RequestParam MultipartFile multipartFile, @RequestParam("json") String jsonData, HttpSession sesija) throws IOException
+    public ResponseEntity MenadzerDodajeNoviArtikal(@RequestParam("image") MultipartFile multipartFile, @RequestParam("json") String jsonData, HttpSession sesija) throws IOException
     {
         DodavanjeNovogArtiklaDto dodavanjeNovogArtiklaDto = new ObjectMapper().readValue(jsonData, DodavanjeNovogArtiklaDto.class);
 
@@ -163,7 +164,6 @@ public class MenadzerRestController {
 
         String uploadDir = "user-photos/" + artikal.getId();
         FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
-
 
         return new ResponseEntity("Menadzer je dodao novi artikal u restoran za koji je zaduzen.", HttpStatus.OK);
     }
