@@ -305,6 +305,8 @@ public class PorudzbinaRestController {
 
         Porudzbina porudzbina = porudzbinaService.dobaviPorudzbinuPoId(id);
 
+        System.out.println(porudzbina);
+
         //System.out.println(porudzbina);
 
         List<PorudzbinaArtikal> sve = porudzbinaArtikalService.NadjiSvePorudzbinaArtikalSaOvimId(id);
