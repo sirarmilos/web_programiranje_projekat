@@ -246,20 +246,41 @@ public class AdminRestController {
 
         for(Menadzer m : menadzeri)
         {
-            System.out.println(m.toString());
             System.out.println("bbbb");
+
+
             if(m.getRestoran().getId().equals(id) == true)
             {
                 menadzer = m;
+                System.out.println(m.getKorisnickoIme());
                 break;
             }
+        }
+
+        menadzer.setRestoran(null);
+        this.adminService.sacuvajMenadzera(menadzer);
+
+        List<Komentar> listaKomentara = this.adminService.nadjiSveKomentare(restoran);
+
+        for(Komentar k : listaKomentara)
+        {
+            k.setRestoran(null);
+            this.adminService.sacuvajKomentar(k);
         }
 
         List<Artikal> artikli = artikalService.NadjiSveArtikleIzDatogRestorana(restoran);
 
         List<Porudzbina> porudzbine = porudzbinaService.dobaviPorudzbinePoRestoranu(restoran);
 
-        List<PorudzbinaArtikal> paLista = new ArrayList<>();
+        for(Porudzbina p : porudzbine)
+        {
+            p.setRestoran(null);
+            adminService.sacuvajPorudzbinu(p);
+        }
+
+        adminService.obrisiRestoran(restoran);
+
+       /* List<PorudzbinaArtikal> paLista = new ArrayList<>();
         List<List<PorudzbinaArtikal>> dzumbus = new ArrayList<>(new ArrayList<>());
 
         for(Artikal a : artikli)
@@ -304,11 +325,15 @@ public class AdminRestController {
 
         System.out.println("f");
 
-        lokacijaService.ObrisiLokacijuPoId(lokacija.getId());
+        lokacijaService.ObrisiLokacijuPoId(lokacija.getId());*/
 
 
 
         return new ResponseEntity("ok", HttpStatus.OK);
+
+
+
+
         /*Restoran restoran = restoranService.NadjiRestoranPoId(id);
 
         List<Menadzer> listaSvihMenadzera = menadzerService.SviMenadzeri();
